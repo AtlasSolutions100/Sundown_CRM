@@ -1,0 +1,12 @@
+run = "npm install && npm run start"
+entrypoint = "src/App.tsx"
+modules = ["nodejs-22"]
+
+[deployment]
+build = ["sh", "-c", "npm install"]
+run = ["sh", "-c", "npm run start"]
+deploymentTarget = "cloudrun"
+
+[[ports]]
+localPort = 5180
+externalPort = 80
