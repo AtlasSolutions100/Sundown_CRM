@@ -24,22 +24,22 @@ export function CrewLayout({ children }: { children: ReactNode }) {
   return (
     <div className="min-h-[100dvh] bg-[hsl(38_22%_92%)] md:flex md:items-center md:justify-center md:py-8">
       <div className="relative mx-auto flex min-h-[100dvh] w-full max-w-[430px] flex-col bg-background md:min-h-0 md:h-[880px] md:max-h-[92dvh] md:overflow-hidden md:rounded-[2.4rem] md:border-[9px] md:border-[hsl(202_30%_12%)] md:shadow-[0_30px_80px_-20px_rgba(20,30,40,0.45)]">
-        <header className="flex items-center justify-between border-b border-border/70 bg-background/95 px-4 pt-3.5 pb-3 backdrop-blur">
+        <header className="flex items-center justify-between bg-[radial-gradient(420px_160px_at_100%_0%,hsl(24_86%_56%/0.45),transparent_65%),linear-gradient(180deg,hsl(202_34%_14%),hsl(202_32%_17%))] px-4 pt-3.5 pb-3 text-white">
           <div className="flex items-center gap-2.5">
             <Logo small />
             <div className="leading-tight">
               <div className="text-[13.5px] font-semibold">Sundown Field</div>
-              <div className="text-[11.5px] text-muted-foreground">Tue, Sep 8 · Post Falls</div>
+              <div className="text-[11.5px] text-white/60">Tue, Sep 8 · Post Falls</div>
             </div>
           </div>
-          <Avatar name={currentUser.name} hue="24 86% 56%" className="size-7 text-[10px]" />
+          <Avatar name={currentUser.name} className="size-7 text-[10px] ring-2 ring-white/20" />
         </header>
         <main className="flex-1 overflow-y-auto pb-20 scrollbar-thin">{children}</main>
         <nav className="absolute inset-x-0 bottom-0 grid grid-cols-4 border-t border-border/70 bg-background/95 pb-[env(safe-area-inset-bottom)] backdrop-blur">
           {TABS.map((t) => {
             const active = location.startsWith(t.href);
             return (
-              <Link key={t.href} href={t.href} className={cn('flex flex-col items-center gap-1 pt-2.5 pb-2 text-[11px] font-medium', active ? 'text-foreground' : 'text-muted-foreground')}>
+              <Link key={t.href} href={t.href} className={cn('flex flex-col items-center gap-1 pt-2.5 pb-2 text-[11px] font-medium', active ? 'text-accent' : 'text-muted-foreground')}>
                 <t.icon className={cn('size-5', active && 'text-accent')} strokeWidth={active ? 2.2 : 1.9} />
                 {t.name}
               </Link>

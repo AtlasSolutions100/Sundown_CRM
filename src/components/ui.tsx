@@ -10,12 +10,12 @@ type Variant = 'primary' | 'secondary' | 'outline' | 'ghost' | 'destructive' | '
 type Size = 'sm' | 'md' | 'lg' | 'icon' | 'xs';
 
 const variantCls: Record<Variant, string> = {
-  primary: 'bg-primary text-primary-foreground hover:bg-primary/90 control-shadow',
-  secondary: 'bg-secondary text-secondary-foreground hover:bg-muted',
+  primary: 'bg-[linear-gradient(180deg,hsl(26_90%_60%),hsl(22_86%_52%))] text-white hover:brightness-[1.04] shadow-[0_1px_2px_rgba(0,0,0,0.12),inset_0_1px_0_rgba(255,255,255,0.25),0_0_0_1px_hsl(22_70%_45%)]',
+  secondary: 'bg-primary text-primary-foreground hover:bg-primary/90 control-shadow',
   outline: 'bg-card text-foreground control-shadow hover:bg-muted/60',
   ghost: 'text-foreground/80 hover:bg-muted hover:text-foreground',
   destructive: 'bg-destructive text-destructive-foreground hover:bg-destructive/90 control-shadow',
-  accent: 'bg-accent text-accent-foreground hover:bg-accent/92 control-shadow',
+  accent: 'bg-[linear-gradient(180deg,hsl(26_90%_60%),hsl(22_86%_52%))] text-white hover:brightness-[1.04] shadow-[0_1px_2px_rgba(0,0,0,0.12),inset_0_1px_0_rgba(255,255,255,0.25),0_0_0_1px_hsl(22_70%_45%)]',
   success: 'bg-success text-success-foreground hover:bg-success/90 control-shadow',
 };
 const sizeCls: Record<Size, string> = {
@@ -59,16 +59,18 @@ export function CardContent({ className, ...p }: HTMLAttributes<HTMLDivElement>)
 }
 
 // ---------------------------------------------------------------- Badge
-export type Tone = 'neutral' | 'primary' | 'accent' | 'success' | 'warning' | 'danger' | 'info' | 'outline';
+export type Tone = 'neutral' | 'primary' | 'accent' | 'success' | 'warning' | 'danger' | 'info' | 'outline' | 'teal' | 'violet';
 const toneCls: Record<Tone, string> = {
-  neutral: 'bg-muted text-foreground/75',
-  primary: 'bg-primary/8 text-primary',
-  accent: 'bg-accent/12 text-[hsl(20_70%_36%)]',
-  success: 'bg-success/10 text-success',
-  warning: 'bg-warning/14 text-[hsl(30_70%_30%)]',
-  danger: 'bg-destructive/10 text-destructive',
-  info: 'bg-info/10 text-info',
+  neutral: 'bg-foreground/[0.06] text-foreground/75',
+  primary: 'bg-primary/10 text-primary',
+  accent: 'bg-accent/15 text-[hsl(20_80%_38%)]',
+  success: 'bg-success/14 text-[hsl(145_45%_26%)]',
+  warning: 'bg-warning/18 text-[hsl(30_75%_30%)]',
+  danger: 'bg-destructive/12 text-[hsl(6_66%_40%)]',
+  info: 'bg-info/14 text-[hsl(206_62%_34%)]',
   outline: 'hairline text-muted-foreground',
+  teal: 'bg-[hsl(178_45%_36%/0.14)] text-[hsl(178_50%_24%)]',
+  violet: 'bg-[hsl(262_50%_55%/0.14)] text-[hsl(262_45%_36%)]',
 };
 export function Badge({ tone = 'neutral', className, dot, ...p }: HTMLAttributes<HTMLSpanElement> & { tone?: Tone; dot?: boolean }) {
   return (
@@ -116,7 +118,7 @@ export function Field({ label, children, hint, className }: { label: string; chi
 export function Switch({ checked, onChange, label, disabled }: { checked: boolean; onChange: (v: boolean) => void; label?: string; disabled?: boolean }) {
   return (
     <button type="button" role="switch" aria-checked={checked} disabled={disabled} onClick={() => onChange(!checked)} className={cn('inline-flex items-center gap-2 text-sm disabled:opacity-50', label && 'cursor-pointer')}>
-      <span className={cn('relative inline-flex h-5 w-9 shrink-0 items-center rounded-full transition-colors', checked ? 'bg-primary' : 'bg-foreground/15')}>
+      <span className={cn('relative inline-flex h-5 w-9 shrink-0 items-center rounded-full transition-colors', checked ? 'bg-accent' : 'bg-foreground/15')}>
         <span className={cn('inline-block size-4 rounded-full bg-white shadow-sm transition-transform', checked ? 'translate-x-4' : 'translate-x-0.5')} />
       </span>
       {label && <span>{label}</span>}
@@ -148,7 +150,7 @@ export function Progress({ value, className, tone = 'primary', height = 'h-1.5' 
 
 /** Segmented milestone bar: one cell per item, coloured by state. */
 export function MilestoneBar({ cells, className }: { cells: { tone: Tone | 'empty'; title?: string }[]; className?: string }) {
-  const cls: Record<string, string> = { success: 'bg-success', warning: 'bg-warning', danger: 'bg-destructive', info: 'bg-info', primary: 'bg-primary', accent: 'bg-accent', neutral: 'bg-muted-foreground/40', outline: 'bg-foreground/[0.08]', empty: 'bg-foreground/[0.08]' };
+  const cls: Record<string, string> = { success: 'bg-success', warning: 'bg-warning', danger: 'bg-destructive', info: 'bg-info', primary: 'bg-primary', accent: 'bg-accent', neutral: 'bg-muted-foreground/40', outline: 'bg-foreground/[0.08]', empty: 'bg-foreground/[0.08]', teal: 'bg-[hsl(178_45%_36%)]', violet: 'bg-[hsl(262_50%_55%)]' };
   return (
     <div className={cn('flex gap-px', className)}>
       {cells.map((c, i) => (
@@ -173,7 +175,7 @@ export function TBody({ className, ...p }: HTMLAttributes<HTMLTableSectionElemen
   return <tbody className={cn('[&_tr:last-child]:border-0', className)} {...p} />;
 }
 export function TR({ className, ...p }: HTMLAttributes<HTMLTableRowElement>) {
-  return <tr className={cn('border-b border-border/70 transition-colors hover:bg-muted/40 data-[state=selected]:bg-muted', className)} {...p} />;
+  return <tr className={cn('border-b border-border/70 transition-colors hover:bg-accent/[0.04] data-[state=selected]:bg-accent/[0.08]', className)} {...p} />;
 }
 export function TH({ className, ...p }: ThHTMLAttributes<HTMLTableCellElement>) {
   return <th className={cn('h-9 px-3 text-left align-middle text-xs font-medium text-muted-foreground [&:has([role=checkbox])]:pr-0', className)} {...p} />;
@@ -187,9 +189,9 @@ export function Tabs<T extends string>({ value, onChange, tabs, className }: { v
   return (
     <div className={cn('flex gap-0.5 border-b overflow-x-auto scrollbar-thin', className)}>
       {tabs.map((t) => (
-        <button key={t.value} type="button" onClick={() => onChange(t.value)} className={cn('-mb-px flex items-center gap-1.5 whitespace-nowrap border-b-2 px-3 py-2 text-[13.5px] font-medium transition-colors', value === t.value ? 'border-foreground text-foreground' : 'border-transparent text-muted-foreground hover:text-foreground')}>
+        <button key={t.value} type="button" onClick={() => onChange(t.value)} className={cn('-mb-px flex items-center gap-1.5 whitespace-nowrap border-b-2 px-3 py-2 text-[13.5px] font-medium transition-colors', value === t.value ? 'border-accent text-foreground' : 'border-transparent text-muted-foreground hover:text-foreground')}>
           {t.label}
-          {t.count !== undefined && <span className={cn('tabular text-xs', value === t.value ? 'text-foreground/60' : 'text-muted-foreground/70')}>{t.count}</span>}
+          {t.count !== undefined && <span className={cn('tabular text-xs', value === t.value ? 'text-accent' : 'text-muted-foreground/70')}>{t.count}</span>}
         </button>
       ))}
     </div>
@@ -277,9 +279,15 @@ export function useToast() {
 }
 
 // ---------------------------------------------------------------- Misc
+const AVATAR_HUES = ['24 86% 52%', '178 45% 34%', '262 45% 52%', '145 42% 33%', '206 62% 42%', '340 55% 50%', '36 80% 44%'];
+export function avatarHue(name: string) {
+  let h = 0;
+  for (const ch of name) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
+  return AVATAR_HUES[h % AVATAR_HUES.length];
+}
 export function Avatar({ name, className, hue }: { name: string; className?: string; hue?: string }) {
   return (
-    <span className={cn('inline-flex size-7 shrink-0 items-center justify-center rounded-full text-[11px] font-semibold text-white', className)} style={{ background: hue ? `hsl(${hue})` : 'hsl(var(--primary))' }}>
+    <span className={cn('inline-flex size-7 shrink-0 items-center justify-center rounded-full text-[11px] font-semibold text-white', className)} style={{ background: `hsl(${hue ?? avatarHue(name)})` }}>
       {initials(name)}
     </span>
   );
@@ -317,10 +325,10 @@ export function Stat({ label, value, sub, tone, icon, onClick }: { label: string
   const valueTone = { default: 'text-foreground', accent: 'text-[hsl(20_70%_36%)]', danger: 'text-destructive', success: 'text-success', warning: 'text-[hsl(30_70%_30%)]' }[tone ?? 'default'];
   const Comp = onClick ? 'button' : 'div';
   return (
-    <Comp onClick={onClick} className={cn('surface flex w-full flex-col items-start gap-1 px-4 py-3.5 text-left transition-colors', onClick && 'hover:bg-muted/40')}>
+    <Comp onClick={onClick} className={cn('surface flex w-full flex-col items-start gap-1 px-4 py-3.5 text-left transition-colors', onClick && 'hover:bg-accent/[0.05]')}>
       <div className="flex w-full items-center justify-between text-[12.5px] font-medium text-muted-foreground">
         <span className="truncate">{label}</span>
-        {icon && <span className="text-muted-foreground/50 [&_svg]:size-3.5">{icon}</span>}
+        {icon && <span className="text-[hsl(178_45%_36%)]/80 [&_svg]:size-4">{icon}</span>}
       </div>
       <div className={cn('num text-[22px] font-semibold leading-none', valueTone)}>{value}</div>
       {sub && <div className="text-xs text-muted-foreground">{sub}</div>}
@@ -339,7 +347,7 @@ export function Pipeline({ steps, className }: { steps: { label: string; state: 
               className={cn(
                 'flex size-5 items-center justify-center rounded-full text-[10px] font-semibold',
                 s.state === 'done' && 'bg-success text-white',
-                s.state === 'active' && 'bg-accent text-white ring-4 ring-accent/15',
+                s.state === 'active' && 'bg-accent text-white ring-4 ring-accent/20',
                 s.state === 'warn' && 'bg-destructive text-white',
                 s.state === 'todo' && 'hairline bg-card text-muted-foreground',
                 s.state === 'skipped' && 'bg-muted text-muted-foreground line-through',

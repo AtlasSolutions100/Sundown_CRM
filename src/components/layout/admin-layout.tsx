@@ -83,7 +83,7 @@ export function AdminLayout({ children }: { children: ReactNode }) {
   const sidebar = (
     <div className="flex h-full flex-col">
       {/* Workspace */}
-      <div className="flex items-center gap-2.5 px-4 pt-4 pb-3">
+      <div className="flex items-center gap-2.5 bg-[linear-gradient(135deg,hsl(24_86%_56%/0.14),transparent_70%)] px-4 pt-4 pb-3">
         <Logo />
         <div className="min-w-0 leading-tight">
           <div className="truncate text-[13.5px] font-semibold text-foreground">Sundown Lawn & Irrigation</div>
@@ -106,7 +106,7 @@ export function AdminLayout({ children }: { children: ReactNode }) {
                     onClick={() => setOpen(false)}
                     className={cn(
                       'group flex h-8 items-center gap-2.5 rounded-md px-2 text-[13.5px] transition-colors',
-                      active ? 'bg-foreground/[0.07] font-medium text-foreground' : 'text-sidebar-foreground hover:bg-foreground/[0.04] hover:text-foreground',
+                      active ? 'bg-accent/[0.12] font-medium text-foreground' : 'text-sidebar-foreground hover:bg-foreground/[0.04] hover:text-foreground',
                     )}
                   >
                     <item.icon className={cn('size-4', active ? 'text-accent' : 'text-muted-foreground group-hover:text-foreground/70')} strokeWidth={active ? 2.2 : 1.9} />
@@ -125,7 +125,7 @@ export function AdminLayout({ children }: { children: ReactNode }) {
       {/* Persona */}
       <div className="border-t border-sidebar-border p-3">
         <label className="relative flex cursor-pointer items-center gap-2.5 rounded-lg px-2 py-2 hover:bg-foreground/[0.04]">
-          <Avatar name={currentUser.name} hue="24 86% 56%" />
+          <Avatar name={currentUser.name} />
           <div className="min-w-0 flex-1 leading-tight">
             <div className="truncate text-[13px] font-medium text-foreground">{currentUser.name}</div>
             <div className="text-[11.5px] text-muted-foreground">{ROLE_LABEL[role]} · preview as</div>
@@ -161,7 +161,7 @@ export function AdminLayout({ children }: { children: ReactNode }) {
 
   return (
     <div className="flex min-h-[100dvh] bg-background">
-      <aside className="sticky top-0 hidden h-[100dvh] w-60 shrink-0 border-r border-sidebar-border bg-sidebar md:block">{sidebar}</aside>
+      <aside className="sticky top-0 hidden h-[100dvh] w-60 shrink-0 border-r border-sidebar-border bg-sidebar/80 backdrop-blur md:block">{sidebar}</aside>
 
       {open && (
         <div className="fixed inset-0 z-40 md:hidden">

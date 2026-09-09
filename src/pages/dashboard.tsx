@@ -54,11 +54,19 @@ export default function Dashboard() {
 
   return (
     <div>
-      <PageHeader
-       
-        title="Operations Dashboard"
-        subtitle={`${format(parseISO(data.today), 'EEEE, MMMM d, yyyy')} · What was sold, what got done, what needs you.`}
-      />
+      {/* Greeting: the one authored brand moment on the page. Sunset over turf, then straight into the numbers. */}
+      <div className="surface relative mb-5 overflow-hidden px-6 py-5">
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(520px_220px_at_92%_-20%,hsl(24_86%_56%/0.35),transparent_65%),radial-gradient(420px_200px_at_70%_120%,hsl(178_45%_40%/0.16),transparent_65%)]" />
+        <div className="pointer-events-none absolute right-8 top-4 hidden size-16 rounded-full bg-[radial-gradient(circle_at_40%_35%,hsl(30_95%_70%),hsl(22_86%_52%)_70%)] shadow-[0_8px_30px_-8px_hsl(24_86%_56%/0.7)] sm:block" />
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 hidden h-3 bg-[linear-gradient(90deg,hsl(145_42%_36%/0.55),hsl(145_42%_36%/0.15)_60%,transparent)] sm:block" />
+        <div className="relative">
+          <div className="text-[12.5px] font-medium text-muted-foreground">{format(parseISO(data.today), 'EEEE, MMMM d')}</div>
+          <h1 className="mt-0.5 text-[26px] font-semibold leading-tight tracking-tight">Good morning, {currentUser.name.split(' ')[0]}.</h1>
+          <p className="mt-1 max-w-xl text-[13.5px] text-muted-foreground">
+            {todayJobs.length} stops out today, {behindContracts.length} contract{behindContracts.length === 1 ? '' : 's'} behind, {pendingInvoices.length} invoice{pendingInvoices.length === 1 ? '' : 's'} waiting on you.
+          </p>
+        </div>
+      </div>
 
       {/* Stat row */}
       <div className="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-6">

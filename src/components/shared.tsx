@@ -12,7 +12,7 @@ export function useLookups() {
 }
 
 // ---- Job status
-const JOB_TONE: Record<JobStatus, Tone> = { unscheduled: 'outline', scheduled: 'info', en_route: 'accent', in_progress: 'accent', done: 'success', skipped: 'neutral', weather_hold: 'warning' };
+const JOB_TONE: Record<JobStatus, Tone> = { unscheduled: 'outline', scheduled: 'info', en_route: 'violet', in_progress: 'accent', done: 'success', skipped: 'neutral', weather_hold: 'warning' };
 const JOB_LABEL: Record<JobStatus, string> = { unscheduled: 'Unscheduled', scheduled: 'Scheduled', en_route: 'En route', in_progress: 'In progress', done: 'Done', skipped: 'Skipped', weather_hold: 'Weather hold' };
 export function JobStatusBadge({ status, className }: { status: JobStatus; className?: string }) {
   return <Badge tone={JOB_TONE[status]} dot className={className}>{JOB_LABEL[status]}</Badge>;
@@ -55,7 +55,8 @@ export function InvoiceStatusBadge({ status }: { status: InvoiceStatus }) {
 }
 
 // ---- Division
-const DIV_TONE: Record<Division, Tone> = { maintenance: 'success', irrigation: 'info', installs: 'accent', backflow: 'primary' };
+const DIV_TONE: Record<Division, Tone> = { maintenance: 'success', irrigation: 'info', installs: 'accent', backflow: 'teal' };
+export const DIVISION_HSL: Record<Division, string> = { maintenance: '145 42% 36%', irrigation: '206 62% 46%', installs: '24 86% 56%', backflow: '178 45% 36%' };
 export function DivisionBadge({ division }: { division: Division }) {
   return <Badge tone={DIV_TONE[division]}>{DIVISION_LABEL[division]}</Badge>;
 }
