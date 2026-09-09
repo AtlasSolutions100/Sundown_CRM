@@ -31,9 +31,9 @@ export default function Tickets() {
   return (
     <div>
       <PageHeader
-        eyebrow="Non-routine work"
+       
         title="Service Requests"
-        subtitle="Every call, text, email, web form and field ticket lands here and runs the same path: bid → approve → schedule → done → invoiced."
+        subtitle="Every call, text, email and field ticket runs one path: bid, approve, schedule, done, invoiced."
         actions={
           <>
             <Segmented value={view} onChange={setView} options={[{ value: 'board', label: 'Board' }, { value: 'list', label: 'List' }]} />
@@ -50,15 +50,13 @@ export default function Tickets() {
             {boardStages.map((s) => {
               const items = sorted.filter((t) => t.stage === s.value);
               return (
-                <div key={s.value} className="flex w-[268px] shrink-0 flex-col rounded-lg border bg-muted/40">
+                <div key={s.value} className="flex w-[268px] shrink-0 flex-col rounded-xl bg-foreground/[0.035]">
                   <div className="flex items-center justify-between px-3 py-2">
-                    <div className="flex items-center gap-2">
-                      <Badge tone={s.tone} dot>{s.label}</Badge>
-                    </div>
-                    <span className="text-xs font-semibold tabular text-muted-foreground">{items.length}</span>
+                    <Badge tone={s.tone} dot>{s.label}</Badge>
+                    <span className="num text-xs text-muted-foreground">{items.length}</span>
                   </div>
                   <div className="flex flex-1 flex-col gap-2 p-2 pt-0">
-                    {items.length === 0 && <div className="rounded-md border border-dashed px-3 py-4 text-center text-xs text-muted-foreground">Empty</div>}
+                    {items.length === 0 && <div className="px-3 py-4 text-center text-xs text-muted-foreground">Empty</div>}
                     {items.map((t) => (
                       <TicketCard key={t.id} t={t} onOpen={() => setOpenId(t.id)} />
                     ))}
@@ -105,19 +103,19 @@ function TicketCard({ t, onOpen }: { t: Ticket; onOpen: () => void }) {
   const { property, member } = useLookups();
   const assignee = member(t.assigneeId);
   return (
-    <button type="button" onClick={onOpen} className={cn('rounded-md border bg-card p-3 text-left shadow-sm transition-colors hover:border-primary/40', t.priority === 'urgent' && 'border-destructive/50')}>
+    <button type="button" onClick={onOpen} className={cn('surface p-3 text-left transition-colors hover:bg-muted/40', t.priority === 'urgent' && 'ring-1 ring-destructive/40')}>
       <div className="flex items-center justify-between gap-2">
-        <span className="text-[11px] font-semibold tabular text-muted-foreground">#{t.number}</span>
+        <span className="num text-[11px] text-muted-foreground">#{t.number}</span>
         <div className="flex items-center gap-1">
           <PriorityBadge priority={t.priority} />
           <SourceIcon source={t.source} />
         </div>
       </div>
-      <div className="mt-1 text-sm font-semibold leading-snug">{t.title}</div>
-      <div className="mt-1 truncate text-xs" onClick={(e) => e.stopPropagation()}>
-        <ClientLink id={t.clientId} className="text-xs" />
+      <div className="mt-1 line-clamp-2 text-sm font-medium leading-snug">{t.title}</div>
+      <div className="mt-1 truncate text-xs text-muted-foreground" onClick={(e) => e.stopPropagation()}>
+        <ClientLink id={t.clientId} className="text-xs font-normal text-muted-foreground" />
+        {property(t.propertyId) && <span> · {property(t.propertyId)?.name}</span>}
       </div>
-      <div className="truncate text-xs text-muted-foreground">{property(t.propertyId)?.name ?? '—'}</div>
       <div className="mt-2 flex items-center justify-between">
         <DivisionBadge division={t.division} />
         <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
@@ -232,13 +230,13 @@ function TicketDialog({ t, onClose }: { t: Ticket; onClose: () => void }) {
           <Pipeline steps={ticketPipeline(t, data)} />
         </div>
 
-        <div className="rounded-md border bg-muted/30 p-3 text-sm">
+        <div className="rounded-lg bg-muted/50 p-3 text-sm">
           <div className="mb-1 flex items-center gap-2 text-xs text-muted-foreground"><SourceIcon source={t.source} /> via {t.source} · {fmtDateTime(t.createdAt)}</div>
           {t.description || <span className="text-muted-foreground">No description.</span>}
         </div>
 
         {est && (
-          <div className="flex items-center justify-between rounded-md border p-3 text-sm">
+          <div className="flex items-center justify-between border-y py-3 text-sm">
             <div>
               <div className="font-medium">Estimate #{est.number} · {est.status}</div>
               <div className="text-xs text-muted-foreground">{est.title}</div>
@@ -251,7 +249,7 @@ function TicketDialog({ t, onClose }: { t: Ticket; onClose: () => void }) {
         )}
 
         <div>
-          <div className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">Next step</div>
+          <div className="mb-2 text-xs font-medium text-muted-foreground">Next step</div>
           <div className="flex flex-wrap items-center gap-2">{primary}</div>
           {!canAct && ['new', 'bid_sent'].includes(t.stage) && <p className="mt-1 text-xs text-destructive">Assign a client and property before approving.</p>}
         </div>
@@ -272,7 +270,7 @@ function TicketDialog({ t, onClose }: { t: Ticket; onClose: () => void }) {
         </div>
 
         <div>
-          <div className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">Timeline</div>
+          <div className="mb-2 text-xs font-medium text-muted-foreground">Timeline</div>
           <ol className="relative space-y-3 border-l pl-4">
             {t.timeline.map((e, i) => (
               <li key={i} className="relative text-sm">
@@ -346,11 +344,11 @@ function NewTicketDialog({ open, onClose, onCreated }: { open: boolean; onClose:
       }
     >
       <div className="space-y-4">
-        <div className="rounded-md border border-accent/40 bg-accent/5 p-3">
-          <div className="mb-1.5 flex items-center gap-2 text-sm font-semibold"><Mic className="size-4 text-accent" /> Voice ticket</div>
+        <div className="rounded-lg bg-muted/50 p-3">
+          <div className="mb-1.5 flex items-center gap-2 text-sm font-medium"><Mic className="size-4 text-muted-foreground" /> Voice ticket</div>
           <Textarea value={voice} onChange={(e) => setVoice(e.target.value)} rows={2} placeholder="Or paste/dictate: e.g. 'job ticket for Camden Place, sprinkler head broken by mailbox'" />
           <div className="mt-2 flex justify-end">
-            <Button size="sm" variant="accent" onClick={parse} disabled={!voice.trim()}><Wand2 /> Parse</Button>
+            <Button size="sm" variant="outline" onClick={parse} disabled={!voice.trim()}><Wand2 /> Parse</Button>
           </div>
         </div>
 

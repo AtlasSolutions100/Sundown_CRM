@@ -53,9 +53,9 @@ export default function TimePage() {
   return (
     <div>
       <PageHeader
-        eyebrow="Money"
+       
         title="Time & Geofence"
-        subtitle="Crews clock in once. Property visits log themselves by geofence. Total hours flow to QuickBooks for payroll."
+        subtitle="Clock in once. Visits log themselves by geofence. Hours flow to QuickBooks for payroll."
         actions={
           <>
             <Badge tone={data.settings.quickBooksConnected ? 'success' : 'danger'} dot>
@@ -96,7 +96,7 @@ export default function TimePage() {
             </Button>
           ) : (
             <Button
-              variant="success"
+              variant="outline"
               disabled={!!myToday?.clockOut}
               onClick={() => {
                 actions.clockIn(currentUser.id);
@@ -111,8 +111,8 @@ export default function TimePage() {
 
       <div className="mb-6 grid grid-cols-2 gap-3 lg:grid-cols-4">
         <Stat label="Tracked hours" value={totalTracked.toFixed(1)} sub={`${entries.length} timesheet days`} icon={<Timer />} />
-        <Stat label="Billable (on-site) hours" value={totalOnSite.toFixed(1)} sub={`${pct(totalTracked ? totalOnSite / totalTracked : 0)} of tracked`} tone="success" />
-        <Stat label="Non-billable" value={pct(nonBillable)} sub={`Target ≤ ${100 - data.settings.billableTargetPct}% (drive, shop, admin)`} tone={nonBillable > 1 - target ? 'warning' : 'success'} />
+        <Stat label="Billable (on-site) hours" value={totalOnSite.toFixed(1)} sub={`${pct(totalTracked ? totalOnSite / totalTracked : 0)} of tracked`} />
+        <Stat label="Non-billable" value={pct(nonBillable)} sub={`Target ≤ ${100 - data.settings.billableTargetPct}% (drive, shop, admin)`} />
         <Stat label="Unsynced days" value={unsynced} sub="Waiting for QuickBooks sync" tone={unsynced ? 'accent' : 'default'} />
       </div>
 
@@ -175,10 +175,10 @@ export default function TimePage() {
           </CardContent>
         </Card>
 
-        <Card className="border-info/30 bg-info/5">
+        <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Radar className="size-4 text-info" /> Geofence settings
+              <Radar className="size-4 text-muted-foreground" /> Geofence settings
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4 text-sm">
@@ -226,7 +226,7 @@ function MemberCard({ m, entries, today, target, tracked, onSite, propName, jobT
               {m.name}
               {onClock && (
                 <span className="flex items-center gap-1 text-xs font-medium text-success">
-                  <span className="size-2 rounded-full bg-success pulse-ring" /> On the clock
+                  <span className="size-2 rounded-full bg-success" /> On the clock
                 </span>
               )}
             </div>
@@ -237,7 +237,7 @@ function MemberCard({ m, entries, today, target, tracked, onSite, propName, jobT
           </div>
         </div>
         <div className="text-right">
-          <div className="text-xl font-bold tabular">{total.toFixed(1)} h</div>
+          <div className="num text-xl font-semibold">{total.toFixed(1)} h</div>
           <div className="text-xs text-muted-foreground">{site.toFixed(1)} h on site</div>
         </div>
       </CardHeader>
@@ -258,29 +258,29 @@ function MemberCard({ m, entries, today, target, tracked, onSite, propName, jobT
         <div className="mt-3 max-h-64 space-y-3 overflow-y-auto pr-1 scrollbar-thin">
           {sorted.map((e) => (
             <div key={e.id}>
-              <div className="mb-1 flex items-center justify-between text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+              <div className="mb-1 flex items-center justify-between text-[11px] font-medium text-muted-foreground">
                 <span>{fmtDate(e.date, 'EEE, MMM d')}</span>
                 <span className="flex items-center gap-2">
-                  {e.syncedToQuickBooks ? <Badge tone="success">QB synced</Badge> : e.clockOut ? <Badge tone="accent">Unsynced</Badge> : <Badge tone="info">Open</Badge>}
+                  {e.syncedToQuickBooks ? <Badge tone="neutral">Synced</Badge> : e.clockOut ? <Badge tone="outline">Unsynced</Badge> : <Badge tone="outline">Open</Badge>}
                   <span className="tabular">{tracked(e).toFixed(1)} h</span>
                 </span>
               </div>
               {e.visits.length === 0 ? (
-                <div className="rounded border border-dashed px-2 py-1.5 text-xs text-muted-foreground">No property visits (shop / admin / drive)</div>
+                <div className="py-1.5 text-xs text-muted-foreground">No property visits (shop / admin / drive)</div>
               ) : (
-                <ol className="space-y-1">
+                <ol className="divide-y divide-border/70">
                   {e.visits.map((v, i) => (
-                    <li key={i} className="flex items-center gap-2 rounded-md border bg-card px-2 py-1.5 text-xs">
-                      <MapPin className="size-3.5 shrink-0 text-info" />
+                    <li key={i} className="flex items-center gap-2 py-1.5 text-xs">
+                      <MapPin className="size-3.5 shrink-0 text-muted-foreground" />
                       <span className="min-w-0 flex-1 truncate">
                         <span className="font-medium">{propName(v.propertyId)}</span>
                         {v.jobIds.length > 0 && <span className="text-muted-foreground"> · {v.jobIds.map(jobTitle).filter(Boolean).join(', ')}</span>}
                       </span>
-                      <span className="whitespace-nowrap text-muted-foreground tabular">
+                      <span className="num whitespace-nowrap text-muted-foreground">
                         {fmtTime(v.arrive)}–{fmtTime(v.depart)}
                       </span>
-                      <span className="w-12 text-right font-medium tabular">{Math.round(hoursBetween(v.arrive, v.depart) * 60)}m</span>
-                      <Badge tone={v.source === 'geofence' ? 'info' : 'outline'}>{v.source === 'geofence' ? 'Geofence' : 'Manual'}</Badge>
+                      <span className="num w-12 text-right font-medium">{Math.round(hoursBetween(v.arrive, v.depart) * 60)}m</span>
+                      {v.source !== 'geofence' && <Badge tone="outline">Manual</Badge>}
                     </li>
                   ))}
                 </ol>

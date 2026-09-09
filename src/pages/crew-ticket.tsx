@@ -1,9 +1,9 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useLocation } from 'wouter';
-import { Mic, MapPin, CheckCircle2, Sparkles } from 'lucide-react';
+import { Mic, MapPin, CheckCircle2 } from 'lucide-react';
 import { useStore } from '@/data/store';
 import { Button, Card, CardContent, Badge, Select, Textarea, Field, Segmented, Switch, useToast } from '@/components/ui';
-import { TicketStageBadge } from '@/components/shared';
+import { TicketStageBadge, DivisionBadge } from '@/components/shared';
 import { cn, fmtDateTime } from '@/lib/utils';
 import type { Division, Ticket } from '@/data/types';
 
@@ -136,17 +136,17 @@ export default function CrewTicket() {
     const p = data.properties.find((p) => p.id === created.propertyId);
     return (
       <div className="space-y-4 px-4 py-4">
-        <Card className="border-success/40 bg-success/5">
+        <Card>
           <CardContent className="p-5 text-center">
-            <CheckCircle2 className="mx-auto size-12 text-success" />
-            <h1 className="mt-3 text-xl font-bold">Ticket #{created.number} sent to the office</h1>
+            <CheckCircle2 className="mx-auto size-10 text-success" />
+            <h1 className="mt-3 text-xl font-semibold">Ticket #{created.number} sent to the office</h1>
             <p className="mt-1 text-sm text-muted-foreground">David and the ops board see it now.</p>
-            <div className="mt-4 rounded-lg border bg-card p-3 text-left text-sm">
+            <div className="mt-4 rounded-lg bg-muted/50 p-3 text-left text-sm">
               <div className="font-semibold">{created.title}</div>
               <div className="text-xs text-muted-foreground">{p?.name} · {p?.address}</div>
               <div className="mt-2 flex flex-wrap gap-1.5">
                 <Badge tone="outline">{created.source === 'voice' ? 'Voice' : 'Field'}</Badge>
-                <Badge tone={created.division === 'maintenance' ? 'success' : 'info'}>{created.division}</Badge>
+                <DivisionBadge division={created.division} />
                 {created.priority === 'urgent' && <Badge tone="danger" dot>Urgent</Badge>}
                 {created.needsBid && <Badge tone="warning">Needs bid</Badge>}
               </div>
@@ -154,8 +154,8 @@ export default function CrewTicket() {
           </CardContent>
         </Card>
         <div className="grid grid-cols-2 gap-2">
-          <Button variant="outline" className="h-12" onClick={resetForm}>New ticket</Button>
-          <Button variant="primary" className="h-12" onClick={() => navigate('/my/day')}>Back to My Day</Button>
+          <Button variant="outline" size="lg" onClick={resetForm}>New ticket</Button>
+          <Button variant="primary" size="lg" onClick={() => navigate('/my/day')}>Back to My day</Button>
         </div>
       </div>
     );
@@ -164,7 +164,7 @@ export default function CrewTicket() {
   return (
     <div className="space-y-4 px-4 py-4">
       <div>
-        <h1 className="text-2xl font-bold tracking-tight">Quick ticket</h1>
+        <h1 className="text-xl font-semibold tracking-tight">Quick ticket</h1>
         <p className="text-sm text-muted-foreground">Say it from the truck. The office gets a ticket on the right property.</p>
       </div>
 
@@ -173,14 +173,14 @@ export default function CrewTicket() {
           type="button"
           onClick={tapMic}
           className={cn(
-            'flex size-24 items-center justify-center rounded-full bg-accent text-accent-foreground shadow-lg transition-transform active:scale-95',
-            listening && 'pulse-ring',
+            'flex size-20 items-center justify-center rounded-full bg-accent text-accent-foreground shadow-md transition-transform active:scale-95',
+            listening && 'ring-8 ring-accent/15',
           )}
           aria-label="Dictate ticket"
         >
-          <Mic className="size-10" strokeWidth={2.2} />
+          <Mic className="size-8" strokeWidth={2.2} />
         </button>
-        <div className="mt-2 text-sm font-semibold">{listening ? 'Listening…' : 'Tap to dictate'}</div>
+        <div className="mt-2 text-sm font-medium">{listening ? 'Listening…' : 'Tap to dictate'}</div>
         <div className="text-[11px] text-muted-foreground">Simulated voice input for this prototype</div>
       </div>
 
@@ -197,20 +197,18 @@ export default function CrewTicket() {
       {text.trim() && (
         <Card>
           <CardContent className="space-y-4 p-4">
-            <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-              <Sparkles className="size-3.5 text-accent" /> Parsed
-            </div>
+            <div className="text-xs font-medium text-muted-foreground">What the office will see</div>
 
             <div>
-              <div className={cn('flex items-center gap-2 rounded-md border p-2.5 text-sm', property ? 'border-success/40 bg-success/5' : 'border-warning/50 bg-warning/10')}>
-                <MapPin className={cn('size-4 shrink-0', property ? 'text-success' : 'text-warning')} />
+              <div className="flex items-center gap-2 text-sm">
+                <MapPin className={cn('size-4 shrink-0', property ? 'text-muted-foreground' : 'text-warning')} />
                 {property ? (
                   <span>
-                    Matched: <span className="font-semibold">{property.name}</span>
+                    <span className="font-medium">{property.name}</span>
                     {propClient && <span className="text-muted-foreground"> · {propClient.name}</span>}
                   </span>
                 ) : (
-                  <span>No property matched — pick one below.</span>
+                  <span className="text-muted-foreground">No property matched. Pick one below.</span>
                 )}
               </div>
               <Select
@@ -233,7 +231,7 @@ export default function CrewTicket() {
             </div>
 
             <Field label="Title">
-              <div className="rounded-md border bg-muted/40 px-3 py-2 text-sm">{title || <span className="text-muted-foreground">—</span>}</div>
+              <div className="rounded-lg bg-muted/50 px-3 py-2 text-sm">{title || <span className="text-muted-foreground">—</span>}</div>
             </Field>
 
             <Field label="Division">
@@ -260,14 +258,14 @@ export default function CrewTicket() {
         </Card>
       )}
 
-      <Button variant="accent" className="h-12 w-full text-base" disabled={!property || !title} onClick={submit}>
+      <Button variant="primary" size="lg" className="w-full" disabled={!property || !title} onClick={submit}>
         Send ticket to office
       </Button>
 
       {mine.length > 0 && (
         <div>
-          <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-muted-foreground">Your recent tickets</h2>
-          <div className="divide-y rounded-lg border bg-card">
+          <h2 className="mb-2 text-sm font-medium text-muted-foreground">Your recent tickets</h2>
+          <div className="surface divide-y divide-border/70">
             {mine.map((t) => (
               <div key={t.id} className="flex items-center justify-between gap-2 px-3 py-2.5">
                 <div className="min-w-0">

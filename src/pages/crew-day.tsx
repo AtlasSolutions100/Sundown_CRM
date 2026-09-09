@@ -60,59 +60,55 @@ export default function CrewDay() {
   }
 
   return (
-    <div className="space-y-4 px-4 py-4">
-      {/* Clock card */}
-      <Card className="overflow-hidden">
-        <CardContent className="p-4">
-          <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{dateLabel}</div>
-          <h1 className="mt-0.5 text-2xl font-bold tracking-tight">Morning, {firstName}</h1>
-          <div className="mt-3">
-            {onClock ? (
-              <div className="flex items-center justify-between gap-3 rounded-lg border border-success/40 bg-success/5 p-3">
-                <div className="flex items-center gap-2">
-                  <span className="size-2.5 rounded-full bg-success pulse-ring" />
-                  <div>
-                    <div className="text-sm font-semibold">On the clock</div>
-                    <div className="text-xs text-muted-foreground">since {fmtTime(entry!.clockIn)}</div>
-                  </div>
-                </div>
-                <Button variant="outline" size="md" className="h-11" onClick={() => { actions.clockOut(currentUser.id); toast({ title: 'Clocked out', description: 'Hours will sync to QuickBooks.' }); }}>
-                  Clock out
-                </Button>
+    <div className="space-y-5 px-4 py-4">
+      {/* Greeting + clock */}
+      <div>
+        <div className="text-xs font-medium text-muted-foreground">{dateLabel}</div>
+        <h1 className="mt-0.5 text-xl font-semibold tracking-tight">Morning, {firstName}</h1>
+        <div className="mt-3">
+          {onClock ? (
+            <div className="flex items-center justify-between gap-3">
+              <div className="flex items-center gap-2 text-sm">
+                <span className="size-2 rounded-full bg-success live-dot" />
+                <span className="font-medium">On the clock</span>
+                <span className="text-muted-foreground">since {fmtTime(entry!.clockIn)}</span>
               </div>
-            ) : entry?.clockOut ? (
-              <div className="flex items-center justify-between rounded-lg border p-3">
-                <div>
-                  <div className="text-sm font-semibold">Day complete</div>
-                  <div className="text-xs text-muted-foreground">{fmtTime(entry.clockIn)} – {fmtTime(entry.clockOut)}</div>
-                </div>
-                <Badge tone="success" dot>Clocked out</Badge>
-              </div>
-            ) : (
-              <Button variant="accent" size="lg" className="h-14 w-full text-base" onClick={() => { actions.clockIn(currentUser.id); toast({ title: 'Clocked in', description: 'Have a good one.' }); }}>
-                <Clock className="!size-5" /> Clock in
+              <Button variant="outline" size="sm" onClick={() => { actions.clockOut(currentUser.id); toast({ title: 'Clocked out', description: 'Hours will sync to QuickBooks.' }); }}>
+                Clock out
               </Button>
-            )}
-          </div>
-          <p className="mt-3 flex items-start gap-2 text-xs text-muted-foreground">
-            <MapPin className="mt-0.5 size-3.5 shrink-0" />
-            Site time is logged automatically by geofence — no need to tap in and out at properties.
-          </p>
-        </CardContent>
-      </Card>
+            </div>
+          ) : entry?.clockOut ? (
+            <div className="flex items-center justify-between gap-3 text-sm">
+              <div>
+                <span className="font-medium">Day complete</span>
+                <span className="text-muted-foreground"> · {fmtTime(entry.clockIn)} – {fmtTime(entry.clockOut)}</span>
+              </div>
+              <Badge tone="neutral">Clocked out</Badge>
+            </div>
+          ) : (
+            <Button variant="primary" size="lg" className="w-full" onClick={() => { actions.clockIn(currentUser.id); toast({ title: 'Clocked in', description: 'Have a good one.' }); }}>
+              <Clock /> Clock in
+            </Button>
+          )}
+        </div>
+        <p className="mt-2 flex items-center gap-1.5 text-xs text-muted-foreground">
+          <MapPin className="size-3.5 shrink-0" />
+          Site time is logged by geofence. No tapping in or out at properties.
+        </p>
+      </div>
 
       {/* Route */}
       <div>
         <div className="mb-2 flex items-end justify-between">
           <div>
-            <h2 className="text-lg font-bold">Today's route</h2>
+            <h2 className="text-[15px] font-semibold">Today's route</h2>
             <div className="text-xs text-muted-foreground">
               {myCrew?.name ?? 'Crew'} · {route.length} stops · {(estMin / 60).toFixed(1)} h est · {miles} mi
             </div>
           </div>
           {stops.length > 0 && (
-            <a href={mapsLink(stops)} target="_blank" rel="noreferrer" className="inline-flex h-9 items-center gap-1.5 rounded-md border bg-card px-3 text-xs font-medium hover:bg-muted">
-              <Navigation className="size-3.5" /> Maps
+            <a href={mapsLink(stops)} target="_blank" rel="noreferrer" className="control-shadow inline-flex h-8 items-center gap-1.5 rounded-md bg-card px-3 text-[13px] font-medium hover:bg-muted/60">
+              <Navigation className="size-3.5 text-muted-foreground" /> Maps
             </a>
           )}
         </div>
@@ -122,91 +118,94 @@ export default function CrewDay() {
             <CardContent className="p-6 text-center text-sm text-muted-foreground">Nothing on the board for your crew today.</CardContent>
           </Card>
         ) : (
-          <div className="space-y-3">
+          <div className="space-y-2.5">
             {route.map((j, i) => {
               const p = property(j.propertyId);
               const s = service(j.serviceId);
               const c = client(j.clientId);
               const mins = s && p ? estimateMinutes(s, p) : 30;
               const done = j.status === 'done';
+              if (done) {
+                return (
+                  <div key={j.id} className="flex items-center gap-3 px-1 py-1.5 text-sm text-muted-foreground">
+                    <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-success/12 text-success">
+                      <Check className="size-4" />
+                    </span>
+                    <span className="min-w-0 flex-1 truncate">{p?.name ?? 'Property'}</span>
+                    <span className="text-xs">Done</span>
+                  </div>
+                );
+              }
               return (
-                <Card key={j.id} className={cn(done && 'opacity-70', j.status === 'in_progress' && 'border-accent shadow-md')}>
+                <Card key={j.id} className={cn(j.status === 'in_progress' && 'ring-1 ring-accent/50')}>
                   <CardContent className="p-4">
                     <div className="flex items-start gap-3">
-                      <span className={cn('flex size-9 shrink-0 items-center justify-center rounded-full text-base font-bold', done ? 'bg-success text-white' : 'bg-primary text-primary-foreground')}>
-                        {done ? <Check className="size-5" /> : i + 1}
-                      </span>
+                      <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-primary text-[13px] font-semibold text-primary-foreground">{i + 1}</span>
                       <div className="min-w-0 flex-1">
                         <div className="flex items-start justify-between gap-2">
                           <div className="min-w-0">
-                            <div className="truncate text-base font-semibold leading-tight">{p?.name ?? 'Property'}</div>
+                            <div className="truncate text-[15px] font-semibold leading-tight">{p?.name ?? 'Property'}</div>
                             <div className="text-xs text-muted-foreground">{p?.address}, {p?.city}</div>
                           </div>
                           <JobStatusBadge status={j.status} />
                         </div>
-                        {!done && (
-                          <>
-                            <div className="mt-2 text-sm">{j.title}</div>
-                            <div className="mt-1.5 flex flex-wrap items-center gap-1.5 text-xs text-muted-foreground">
-                              <span className="inline-flex items-center gap-1"><Clock className="size-3" /> ~{mins} min</span>
-                              {c && <span>· {c.name}</span>}
-                              {p?.gateCode && (
-                                <span className="inline-flex items-center gap-1 rounded bg-accent/20 px-1.5 py-0.5 font-medium text-accent-foreground">
-                                  <KeyRound className="size-3" /> Gate {p.gateCode}
-                                </span>
-                              )}
-                            </div>
-                            {(p?.notes || j.notes) && (
-                              <div className="mt-2 rounded-md bg-muted/60 p-2 text-xs">
-                                {p?.notes && <div>{p.notes}</div>}
-                                {j.notes && <div className={cn(p?.notes && 'mt-1')}>{j.notes}</div>}
-                              </div>
-                            )}
-                            {(c?.notes) && <div className="mt-1 text-[11px] text-muted-foreground">{c.notes}</div>}
-                          </>
+                        <div className="mt-2 text-sm">{j.title}</div>
+                        <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted-foreground">
+                          <span className="inline-flex items-center gap-1"><Clock className="size-3" /> ~{mins} min</span>
+                          {c && <span>{c.name}</span>}
+                          {p?.gateCode && (
+                            <span className="inline-flex items-center gap-1 rounded bg-muted px-1.5 py-0.5 font-medium text-foreground">
+                              <KeyRound className="size-3" /> Gate {p.gateCode}
+                            </span>
+                          )}
+                        </div>
+                        {(p?.notes || j.notes) && (
+                          <div className="mt-2 rounded-lg bg-muted/50 p-2.5 text-xs">
+                            {p?.notes && <div>{p.notes}</div>}
+                            {j.notes && <div className={cn(p?.notes && 'mt-1')}>{j.notes}</div>}
+                          </div>
                         )}
+                        {(c?.notes) && <div className="mt-1 text-[11px] text-muted-foreground">{c.notes}</div>}
                       </div>
                     </div>
 
-                    {!done && (
-                      <div className="mt-3 grid grid-cols-2 gap-2">
-                        {j.status === 'scheduled' && (
-                          <>
-                            <Button variant="outline" className="h-11" onClick={() => setStatus(j, 'en_route', 'On the way')}>
-                              <Navigation /> On my way
-                            </Button>
-                            <Button variant="primary" className="h-11" onClick={() => setStatus(j, 'in_progress', 'Started')}>
-                              Start
-                            </Button>
-                          </>
-                        )}
-                        {j.status === 'en_route' && (
-                          <Button variant="primary" className="col-span-2 h-11" onClick={() => setStatus(j, 'in_progress', 'Started')}>
+                    <div className="mt-3 grid grid-cols-2 gap-2">
+                      {j.status === 'scheduled' && (
+                        <>
+                          <Button variant="outline" size="lg" onClick={() => setStatus(j, 'en_route', 'On the way')}>
+                            <Navigation /> On my way
+                          </Button>
+                          <Button variant="primary" size="lg" onClick={() => setStatus(j, 'in_progress', 'Started')}>
                             Start
                           </Button>
-                        )}
-                        {j.status === 'in_progress' && (
-                          <>
-                            <Button variant="outline" className="h-11" onClick={() => reportIssue(j.propertyId)}>
-                              <AlertTriangle /> Report issue
-                            </Button>
-                            <Button variant="success" className="h-11" onClick={() => setStatus(j, 'done', 'Marked done')}>
-                              <Check /> Done
-                            </Button>
-                          </>
-                        )}
-                        {j.status === 'weather_hold' && (
-                          <>
-                            <div className="col-span-2 flex items-center gap-2 rounded-md border border-warning/50 bg-warning/10 p-2 text-xs">
-                              <CloudRain className="size-4 text-warning" /> Held for weather. Office will re-suggest a dry day.
-                            </div>
-                            <Button variant="outline" className="col-span-2 h-11" onClick={() => { actions.weatherHold(j.id, false); toast({ title: 'Released', description: 'Back on the route.' }); }}>
-                              Release hold
-                            </Button>
-                          </>
-                        )}
-                      </div>
-                    )}
+                        </>
+                      )}
+                      {j.status === 'en_route' && (
+                        <Button variant="primary" size="lg" className="col-span-2" onClick={() => setStatus(j, 'in_progress', 'Started')}>
+                          Start
+                        </Button>
+                      )}
+                      {j.status === 'in_progress' && (
+                        <>
+                          <Button variant="outline" size="lg" onClick={() => reportIssue(j.propertyId)}>
+                            <AlertTriangle /> Report issue
+                          </Button>
+                          <Button variant="success" size="lg" onClick={() => setStatus(j, 'done', 'Marked done')}>
+                            <Check /> Done
+                          </Button>
+                        </>
+                      )}
+                      {j.status === 'weather_hold' && (
+                        <>
+                          <div className="col-span-2 flex items-center gap-2 rounded-lg bg-muted/50 p-2.5 text-xs">
+                            <CloudRain className="size-4 text-muted-foreground" /> Held for weather. Office will re-suggest a dry day.
+                          </div>
+                          <Button variant="outline" size="lg" className="col-span-2" onClick={() => { actions.weatherHold(j.id, false); toast({ title: 'Released', description: 'Back on the route.' }); }}>
+                            Release hold
+                          </Button>
+                        </>
+                      )}
+                    </div>
                   </CardContent>
                 </Card>
               );
@@ -220,11 +219,11 @@ export default function CrewDay() {
         <Card>
           <CardContent className="p-4">
             <div className="text-sm font-semibold">Also at these properties today</div>
-            <div className="mt-2 space-y-2">
+            <div className="mt-1 divide-y divide-border/70">
               {others.map((j) => {
                 const cr = crew(j.crewId);
                 return (
-                  <div key={j.id} className="flex items-center justify-between gap-2 text-sm">
+                  <div key={j.id} className="flex items-center justify-between gap-2 py-2.5 text-sm">
                     <div className="min-w-0">
                       <div className="truncate font-medium">{property(j.propertyId)?.name}</div>
                       <div className="truncate text-xs text-muted-foreground">{j.title}</div>
@@ -243,12 +242,12 @@ export default function CrewDay() {
 
       {/* Quick actions */}
       <div>
-        <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-muted-foreground">Quick actions</h2>
+        <h2 className="mb-2 text-sm font-medium text-muted-foreground">Quick actions</h2>
         <div className="grid grid-cols-2 gap-2">
-          <QuickAction icon={<Mic />} label="Voice ticket" onClick={() => navigate('/my/ticket')} accent />
+          <QuickAction icon={<Mic />} label="Voice ticket" onClick={() => navigate('/my/ticket')} />
           <QuickAction icon={<Wrench />} label="Work order" onClick={() => navigate('/my/work-order')} />
           <QuickAction icon={<Droplets />} label="Backflow test" onClick={() => navigate('/my/backflow')} />
-          <a href={`tel:${data.settings.phone.replace(/\D/g, '')}`} className="flex h-20 flex-col items-center justify-center gap-1.5 rounded-lg border bg-card text-sm font-medium shadow-sm hover:bg-muted [&_svg]:size-6 [&_svg]:text-primary">
+          <a href={`tel:${data.settings.phone.replace(/\D/g, '')}`} className="control-shadow flex h-16 flex-col items-center justify-center gap-1 rounded-lg bg-card text-[13px] font-medium hover:bg-muted/60 [&_svg]:size-5 [&_svg]:text-muted-foreground">
             <Phone /> Call office
           </a>
         </div>
@@ -257,15 +256,12 @@ export default function CrewDay() {
   );
 }
 
-function QuickAction({ icon, label, onClick, accent }: { icon: React.ReactNode; label: string; onClick: () => void; accent?: boolean }) {
+function QuickAction({ icon, label, onClick }: { icon: React.ReactNode; label: string; onClick: () => void }) {
   return (
     <button
       type="button"
       onClick={onClick}
-      className={cn(
-        'flex h-20 flex-col items-center justify-center gap-1.5 rounded-lg border text-sm font-medium shadow-sm [&_svg]:size-6',
-        accent ? 'border-accent bg-accent text-accent-foreground hover:bg-accent/90' : 'bg-card hover:bg-muted [&_svg]:text-primary',
-      )}
+      className="control-shadow flex h-16 flex-col items-center justify-center gap-1 rounded-lg bg-card text-[13px] font-medium hover:bg-muted/60 [&_svg]:size-5 [&_svg]:text-muted-foreground"
     >
       {icon}
       {label}

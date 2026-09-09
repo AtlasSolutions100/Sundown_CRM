@@ -40,11 +40,11 @@ export default function InboxPage() {
   return (
     <div>
       <PageHeader
-        eyebrow="Inbox"
+       
         title="One inbox, every client"
         subtitle={
           <span>
-            Service line <span className="font-medium text-foreground">{data.settings.serviceLine}</span> · <span className="font-medium text-foreground">{data.settings.email}</span>. Calls are recorded &amp; summarized; texts and emails auto-file by sender.
+            Service line <span className="font-medium text-foreground">{data.settings.serviceLine}</span> · <span className="font-medium text-foreground">{data.settings.email}</span> · auto-filed by sender
           </span>
         }
       />
@@ -75,13 +75,11 @@ export default function InboxPage() {
                 const c = L.client(m.clientId);
                 const active = m.id === selectedId;
                 return (
-                  <button key={m.id} type="button" onClick={() => select(m)} className={cn('flex w-full gap-3 border-b px-3 py-3 text-left transition-colors hover:bg-muted/50', active && 'bg-primary/5')}>
-                    <span className={cn('mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-md', m.direction === 'out' ? 'bg-primary/10 text-primary' : 'bg-muted text-muted-foreground')}>
-                      <Icon className="size-4" />
-                    </span>
+                  <button key={m.id} type="button" onClick={() => select(m)} className={cn('flex w-full gap-3 border-b border-border/70 px-3 py-3 text-left transition-colors hover:bg-muted/40', active && 'bg-muted/60')}>
+                    <Icon className={cn('mt-1 size-4 shrink-0', m.direction === 'out' ? 'text-foreground/60' : 'text-muted-foreground')} />
                     <span className="min-w-0 flex-1">
                       <span className="flex items-center justify-between gap-2">
-                        <span className="truncate text-sm font-semibold">{c ? c.name : <Badge tone="accent">Unknown sender</Badge>}</span>
+                        <span className="truncate text-sm font-medium">{c ? c.name : <Badge tone="accent">Unknown sender</Badge>}</span>
                         <span className="shrink-0 text-[11px] text-muted-foreground">{fmtDateTime(m.at)}</span>
                       </span>
                       <span className="block truncate text-xs text-muted-foreground">{m.direction === 'out' ? `To ${m.to}` : m.from}</span>
@@ -137,11 +135,11 @@ function UnfiledPane({ message: m, onFiled }: { message: Message; onFiled: (clie
 
   return (
     <div className="flex flex-1 flex-col overflow-y-auto p-5">
-      <div className="flex items-start gap-3 rounded-lg border bg-muted/30 p-4">
-        <span className="flex size-9 items-center justify-center rounded-md bg-card"><Icon className="size-4" /></span>
+      <div className="flex items-start gap-3 rounded-lg bg-muted/50 p-4">
+        <Icon className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
-            <span className="font-semibold">{m.from}</span>
+            <span className="font-medium">{m.from}</span>
             <Badge tone="accent">Unknown sender</Badge>
             <span className="text-xs text-muted-foreground">{fmtDateTime(m.at)}</span>
           </div>
@@ -149,9 +147,9 @@ function UnfiledPane({ message: m, onFiled }: { message: Message; onFiled: (clie
         </div>
       </div>
 
-      <div className="mt-5 grid gap-5 md:grid-cols-2">
-        <div className="rounded-lg border p-4">
-          <div className="mb-3 flex items-center gap-2 font-semibold"><FolderInput className="size-4 text-primary" /> File to an existing client</div>
+      <div className="mt-5 grid gap-6 md:grid-cols-2 md:divide-x md:divide-border/70 md:gap-0">
+        <div className="md:pr-6">
+          <div className="mb-3 flex items-center gap-2 font-medium"><FolderInput className="size-4 text-muted-foreground" /> File to an existing client</div>
           <Field label="Client">
             <Select value={clientId} onChange={(e) => setClientId(e.target.value)}>
               <option value="">Choose…</option>
@@ -166,13 +164,13 @@ function UnfiledPane({ message: m, onFiled }: { message: Message; onFiled: (clie
             <Button disabled={!clientId} variant="outline" onClick={() => fileAndMaybeTicket(clientId, true)}><Ticket /> File + create service request</Button>
           </div>
         </div>
-        <div className="rounded-lg border p-4">
-          <div className="mb-3 flex items-center gap-2 font-semibold"><UserPlus className="size-4 text-accent" /> New lead from this message</div>
+        <div className="md:pl-6">
+          <div className="mb-3 flex items-center gap-2 font-medium"><UserPlus className="size-4 text-muted-foreground" /> New lead from this message</div>
           <Field label="Name"><Input value={leadName} onChange={(e) => setLeadName(e.target.value)} placeholder="e.g. Mike – 4410 N Ramsey Rd" /></Field>
           <p className="mt-2 text-xs text-muted-foreground">Creates a lead with this {m.channel === 'email' ? 'email' : 'phone number'} attached and files the message to it.</p>
           <Button
             className="mt-4"
-            variant="accent"
+            variant="outline"
             disabled={!leadName.trim()}
             onClick={() => {
               const id = actions.createClientFromMessage(m.id, leadName.trim());
@@ -208,15 +206,15 @@ function Thread({ clientId }: { clientId: string }) {
     <>
       <div className="flex items-center justify-between border-b px-5 py-3">
         <div>
-          <Link href={`/clients/${clientId}`} className="font-semibold hover:text-primary hover:underline">{c?.name}</Link>
+          <Link href={`/clients/${clientId}`} className="font-medium hover:underline">{c?.name}</Link>
           <div className="text-xs text-muted-foreground">{c?.contactName} · {c?.phone} · {c?.email}</div>
         </div>
-        <Badge tone="outline">{msgs.length} messages</Badge>
+        <span className="text-xs text-muted-foreground">{msgs.length} messages</span>
       </div>
       <div className="flex-1 space-y-5 overflow-y-auto px-5 py-4 scrollbar-thin">
         {days.map((d) => (
           <div key={d.day}>
-            <div className="mb-3 flex items-center gap-3 text-[11px] uppercase tracking-wide text-muted-foreground">
+            <div className="mb-3 flex items-center gap-3 text-[11px] text-muted-foreground">
               <span className="h-px flex-1 bg-border" />
               {fmtDateLong(d.day)}
               <span className="h-px flex-1 bg-border" />
@@ -228,7 +226,7 @@ function Thread({ clientId }: { clientId: string }) {
                 const out = m.direction === 'out';
                 return (
                   <div key={m.id} className={cn('flex', out ? 'justify-end' : 'justify-start')}>
-                    <div className={cn('max-w-[80%] rounded-2xl px-4 py-2.5 text-sm shadow-sm', out ? 'rounded-br-sm bg-primary text-primary-foreground' : 'rounded-bl-sm bg-muted')}>
+                    <div className={cn('max-w-[80%] rounded-2xl px-4 py-2.5 text-sm', out ? 'rounded-br-sm bg-primary text-primary-foreground' : 'rounded-bl-sm bg-muted')}>
                       <div className={cn('mb-1 flex items-center gap-1.5 text-[11px]', out ? 'text-primary-foreground/70' : 'text-muted-foreground')}>
                         <Icon className="size-3" />
                         {m.channel === 'voice_note' ? 'Voice note' : m.channel === 'call' ? 'Call summary' : m.channel} · {fmtTime(m.at)}
@@ -236,7 +234,7 @@ function Thread({ clientId }: { clientId: string }) {
                       </div>
                       <p className="whitespace-pre-wrap">{m.body}</p>
                       {t && (
-                        <Link href="/tickets" className={cn('mt-2 inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[11px] font-medium', out ? 'bg-white/15 hover:bg-white/25' : 'bg-card hover:bg-card/70 border')}>
+                        <Link href="/tickets" className={cn('mt-2 inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[11px] font-medium', out ? 'bg-white/15 hover:bg-white/25' : 'hairline bg-card hover:bg-muted/60')}>
                           <Ticket className="size-3" /> #{t.number} {t.title}
                         </Link>
                       )}

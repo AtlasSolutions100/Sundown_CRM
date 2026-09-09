@@ -44,9 +44,9 @@ export default function Reports() {
   return (
     <div>
       <PageHeader
-        eyebrow="Money"
+       
         title="Job Costing & Margins"
-        subtitle="Where the money is made and where it bleeds: by division, by client, by install. Check the numbers before you sign a multi-year term."
+        subtitle="Margin by division, by client and by install. Check it before signing a multi-year term."
         actions={
           <Segmented
             value={range}
@@ -76,7 +76,7 @@ export default function Reports() {
           {byDivision.length === 0 ? (
             <EmptyState title="No completed work in range" />
           ) : (
-            <div className="grid gap-4 lg:grid-cols-2">
+            <div className="grid gap-px overflow-hidden rounded-lg bg-border/70 lg:grid-cols-2">
               {byDivision
                 .slice()
                 .sort((a, b) => b.revenue - a.revenue)
@@ -161,10 +161,10 @@ export default function Reports() {
                             {j.notes && <span> · {j.notes}</span>}
                           </div>
                         </TD>
-                        <TD className="text-right tabular">{money(j.price, { cents: false })}</TD>
-                        <TD className="text-right tabular">{money(lab.cost, { cents: false })}</TD>
-                        <TD className="text-right tabular">{mat ? money(mat, { cents: false }) : <span className="text-muted-foreground">tracked off-catalog</span>}</TD>
-                        <TD className={cn('text-right font-semibold tabular', marginText(m))}>{pct(m)}</TD>
+                        <TD className="text-right num">{money(j.price, { cents: false })}</TD>
+                        <TD className="text-right num">{money(lab.cost, { cents: false })}</TD>
+                        <TD className="text-right num">{mat ? money(mat, { cents: false }) : <span className="text-muted-foreground">tracked off-catalog</span>}</TD>
+                        <TD className={cn('text-right font-semibold num', marginText(m))}>{pct(m)}</TD>
                       </TR>
                     );
                   })}
@@ -176,13 +176,11 @@ export default function Reports() {
         </Card>
 
         {/* Methodology */}
-        <Card className="border-info/30 bg-info/5">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Info className="size-4 text-info" /> How labor is attributed
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3 text-sm">
+        <div className="rounded-lg bg-muted/50 p-5">
+          <div className="mb-3 flex items-center gap-2 text-[15px] font-semibold">
+            <Info className="size-4 text-muted-foreground" /> How labor is attributed
+          </div>
+          <div className="space-y-3 text-[13.5px]">
             <p>
               <span className="font-medium">Geofence visits</span> log arrive and depart at each property with nobody tapping a button. A visit's hours are split evenly across the jobs worked during it.
             </p>
@@ -193,8 +191,8 @@ export default function Reports() {
               <span className="font-medium">Cleanup / pruning overage:</span> on combo days, day hours minus the mowing baseline is attributed to the cleanup or pruning line. This is the same method as your spreadsheet, run automatically.
             </p>
             <p className="text-xs text-muted-foreground">Loaded labor rates come from Team. Materials come from parts logged on work orders at cost.</p>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       </div>
     </div>
   );
@@ -203,15 +201,15 @@ export default function Reports() {
 function DivisionRow({ row }: { row: MarginRow }) {
   const tone = marginTone(row.margin);
   return (
-    <div className="rounded-lg border p-4">
+    <div className="bg-card p-4">
       <div className="mb-2 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <DivisionBadge division={row.key as 'maintenance' | 'irrigation' | 'installs' | 'backflow'} />
           <span className="text-xs text-muted-foreground">{row.jobs} jobs</span>
         </div>
-        <div className={cn('text-xl font-bold tabular', marginText(row.margin))}>{pct(row.margin)}</div>
+        <div className={cn('num text-lg font-semibold', marginText(row.margin))}>{pct(row.margin)}</div>
       </div>
-      <Progress value={Math.max(0, row.margin)} tone={tone} height="h-2.5" />
+      <Progress value={Math.max(0, row.margin)} tone={tone} />
       <div className="mt-3 grid grid-cols-3 gap-x-3 gap-y-1 text-xs">
         <Cell label="Revenue" value={money(row.revenue, { cents: false })} />
         <Cell label="Labor" value={`${row.laborHours.toFixed(0)} h · ${money(row.laborCost, { cents: false })}`} />
@@ -226,7 +224,7 @@ function DivisionRow({ row }: { row: MarginRow }) {
 function Cell({ label, value, strong }: { label: string; value: string; strong?: boolean }) {
   return (
     <div>
-      <div className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">{label}</div>
+      <div className="text-[11.5px] font-medium text-muted-foreground">{label}</div>
       <div className={cn('tabular', strong && 'font-semibold')}>{value}</div>
     </div>
   );
@@ -236,18 +234,18 @@ function ClientRows({ row, open, onToggle, term, renewalDue, sub }: { row: Margi
   const low = row.margin < 0.15;
   return (
     <>
-      <TR onClick={onToggle} className={cn('cursor-pointer', low && 'bg-destructive/5')}>
+      <TR onClick={onToggle} className="cursor-pointer">
         <TD className="text-muted-foreground">{open ? <ChevronDown className="size-4" /> : <ChevronRight className="size-4" />}</TD>
         <TD>
           <ClientLink id={row.key} />
           <div className="text-xs text-muted-foreground">{row.jobs} jobs</div>
         </TD>
         <TD className="whitespace-nowrap text-muted-foreground">{term}</TD>
-        <TD className="text-right tabular">{money(row.revenue, { cents: false })}</TD>
-        <TD className="text-right tabular">{row.laborHours.toFixed(0)}</TD>
-        <TD className={cn('text-right font-semibold tabular', marginText(row.margin))}>{pct(row.margin)}</TD>
-        <TD className="text-right tabular">{money(row.realizedHourly, { cents: false })}</TD>
-        <TD className="text-right tabular">{money(row.profit, { cents: false })}</TD>
+        <TD className="text-right num">{money(row.revenue, { cents: false })}</TD>
+        <TD className="text-right num">{row.laborHours.toFixed(0)}</TD>
+        <TD className={cn('text-right font-semibold num', marginText(row.margin))}>{pct(row.margin)}</TD>
+        <TD className="text-right num">{money(row.realizedHourly, { cents: false })}</TD>
+        <TD className="text-right num">{money(row.profit, { cents: false })}</TD>
         <TD>
           <div className="flex flex-wrap gap-1">
             {low && (
@@ -267,11 +265,11 @@ function ClientRows({ row, open, onToggle, term, renewalDue, sub }: { row: Margi
               <DivisionBadge division={s.key as 'maintenance' | 'irrigation' | 'installs' | 'backflow'} />
               <span className="ml-2 text-xs text-muted-foreground">{s.jobs} jobs</span>
             </td>
-            <TD className="text-right tabular">{money(s.revenue, { cents: false })}</TD>
-            <TD className="text-right tabular">{s.laborHours.toFixed(0)}</TD>
-            <TD className={cn('text-right font-semibold tabular', marginText(s.margin))}>{pct(s.margin)}</TD>
-            <TD className="text-right tabular">{money(s.realizedHourly, { cents: false })}</TD>
-            <TD className="text-right tabular">{money(s.profit, { cents: false })}</TD>
+            <TD className="text-right num">{money(s.revenue, { cents: false })}</TD>
+            <TD className="text-right num">{s.laborHours.toFixed(0)}</TD>
+            <TD className={cn('text-right font-semibold num', marginText(s.margin))}>{pct(s.margin)}</TD>
+            <TD className="text-right num">{money(s.realizedHourly, { cents: false })}</TD>
+            <TD className="text-right num">{money(s.profit, { cents: false })}</TD>
             <TD className="text-xs text-muted-foreground">{s.margin < 0.15 ? 'This is where it slipped' : ''}</TD>
           </TR>
         ))}

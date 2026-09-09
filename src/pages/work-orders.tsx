@@ -9,7 +9,7 @@ import { partSellPrice, round2 } from '@/lib/pricing';
 import { useLocation } from 'wouter';
 
 const TRIP_FEE = 45;
-const STATUS: Record<WorkOrder['status'], { tone: Tone; label: string }> = { open: { tone: 'warning', label: 'Open' }, submitted: { tone: 'accent', label: 'Invoice drafted' }, invoiced: { tone: 'success', label: 'Invoiced' } };
+const STATUS: Record<WorkOrder['status'], { tone: Tone; label: string }> = { open: { tone: 'warning', label: 'Open' }, submitted: { tone: 'info', label: 'Invoice drafted' }, invoiced: { tone: 'success', label: 'Invoiced' } };
 
 function laborHours(wo: Pick<WorkOrder, 'timeIn' | 'timeOut'>) {
   if (!wo.timeIn || !wo.timeOut) return 0;
@@ -38,9 +38,9 @@ export default function WorkOrders() {
   return (
     <div>
       <PageHeader
-        eyebrow="Operate"
+       
         title="Work Orders"
-        subtitle="Your paper ticket, digitized: date, property, time in and out, labor, parts from the bucket. Priced and invoiced automatically."
+        subtitle="Your paper ticket, digitized. Time in and out plus the bucket count, priced automatically."
         actions={
           <Button onClick={() => setCreating(true)}>
             <Plus /> New work order
@@ -48,19 +48,17 @@ export default function WorkOrders() {
         }
       />
 
-      <Card className="mb-6 border-info/30 bg-info/5">
-        <CardContent className="flex items-start gap-3 p-4 text-sm">
-          <Info className="mt-0.5 size-4 shrink-0 text-info" />
-          <div>
-            <span className="font-medium">Tech counts the bucket → picks parts → submits.</span> Labor and parts are priced automatically ({money(TRIP_FEE)} trip fee + hours × tech rate + parts at catalog markup) and an invoice is drafted for your approval. No more end-of-month transcribing from phone notes.
-          </div>
-        </CardContent>
-      </Card>
+      <div className="mb-5 flex items-start gap-2.5 rounded-lg bg-muted/50 p-3 text-[13px]">
+        <Info className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
+        <div>
+          <span className="font-medium">Tech counts the bucket, picks parts, submits.</span> Labor and parts are priced automatically ({money(TRIP_FEE)} trip fee + hours × tech rate + parts at catalog markup) and an invoice is drafted for your approval.
+        </div>
+      </div>
 
       <div className="mb-6 grid grid-cols-3 gap-3">
-        <Stat label="Open today" value={openToday.length} sub="Tech still on site" tone={openToday.length ? 'warning' : 'default'} icon={<Wrench />} />
+        <Stat label="Open today" value={openToday.length} sub="Tech still on site" icon={<Wrench />} />
         <Stat label="Awaiting invoice approval" value={submitted.length} sub={money(sum(submitted.map(total)))} tone={submitted.length ? 'accent' : 'default'} onClick={() => navigate('/invoices')} />
-        <Stat label="Invoiced this month" value={money(sum(invoicedMonth.map(total)))} sub={`${invoicedMonth.length} work orders`} tone="success" />
+        <Stat label="Invoiced this month" value={money(sum(invoicedMonth.map(total)))} sub={`${invoicedMonth.length} work orders`} />
       </div>
 
       {rows.length === 0 ? (
@@ -89,7 +87,7 @@ export default function WorkOrders() {
                 const st = STATUS[wo.status];
                 return (
                   <TR key={wo.id} onClick={() => setOpenId(wo.id)} className="cursor-pointer">
-                    <TD className="font-mono text-xs">{wo.number}</TD>
+                    <TD className="font-mono text-[12.5px] text-muted-foreground">{wo.number}</TD>
                     <TD className="whitespace-nowrap">{fmtDate(wo.date)}</TD>
                     <TD>
                       <div className="font-medium">
@@ -176,11 +174,11 @@ function DetailDialog({ wo, onClose }: { wo: WorkOrder; onClose: () => void }) {
       <div className="grid gap-4">
         <div className="grid grid-cols-3 gap-3 text-sm">
           <div>
-            <div className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">Tech</div>
+            <div className="text-[11.5px] font-medium text-muted-foreground">Tech</div>
             {member(wo.techId)?.name}
           </div>
           <div>
-            <div className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">Time</div>
+            <div className="text-[11.5px] font-medium text-muted-foreground">Time</div>
             <span className="tabular">
               {wo.timeIn}
               {wo.timeOut ? `–${wo.timeOut}` : ' – on site'}
@@ -188,16 +186,16 @@ function DetailDialog({ wo, onClose }: { wo: WorkOrder; onClose: () => void }) {
             {wo.timeOut && <span className="text-muted-foreground"> ({hrs} h)</span>}
           </div>
           <div>
-            <div className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">Labor rate</div>
+            <div className="text-[11.5px] font-medium text-muted-foreground">Labor rate</div>
             {money(wo.laborRate)}/hr
           </div>
         </div>
         <div>
-          <div className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">Work performed</div>
+          <div className="text-[11.5px] font-medium text-muted-foreground">Work performed</div>
           <p className="text-sm">{wo.workPerformed || <span className="text-muted-foreground">Not entered yet.</span>}</p>
         </div>
         <div>
-          <div className="mb-1 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">Parts from the bucket</div>
+          <div className="mb-1 text-[11.5px] font-medium text-muted-foreground">Parts from the bucket</div>
           {partLines.length === 0 ? (
             <div className="rounded border border-dashed p-3 text-sm text-muted-foreground">No parts used.</div>
           ) : (
@@ -234,9 +232,9 @@ function DetailDialog({ wo, onClose }: { wo: WorkOrder; onClose: () => void }) {
             </Table>
           )}
         </div>
-        <div className="rounded-md border bg-muted/40 p-3 text-sm">
-          <div className="mb-1 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">How this priced</div>
-          <div className="grid gap-1 tabular">
+        <div className="rounded-lg bg-muted/50 p-3 text-sm">
+          <div className="mb-1 text-[11.5px] font-medium text-muted-foreground">How this priced</div>
+          <div className="num grid gap-1">
             <Row label="Trip fee" value={money(TRIP_FEE)} />
             <Row label={`Labor · ${hrs} h × ${money(wo.laborRate)}`} value={money(labor)} />
             <Row label="Parts at cost × (1 + markup)" value={money(partsTotal)} />
@@ -384,8 +382,8 @@ function NewDialog({ onClose, onSubmit }: { onClose: () => void; onSubmit: (wo: 
           <Textarea value={work} onChange={(e) => setWork(e.target.value)} placeholder="Replaced two pop-ups on zone 3, adjusted rotor arcs, tested all zones…" />
         </Field>
 
-        <div className="rounded-md border">
-          <div className="flex flex-wrap items-end gap-2 border-b bg-muted/30 p-3">
+        <div className="hairline overflow-hidden rounded-lg">
+          <div className="flex flex-wrap items-end gap-2 border-b border-border/70 bg-muted/40 p-3">
             <Field label="Part from the bucket" className="min-w-[260px] flex-1">
               <Select value={pickPart} onChange={(e) => setPickPart(e.target.value)}>
                 {data.parts.map((p) => (

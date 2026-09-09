@@ -74,9 +74,9 @@ export default function Backflow() {
   return (
     <div>
       <PageHeader
-        eyebrow="Backflow"
+       
         title="Backflow devices & testing"
-        subtitle="Every assembly on file, tested from the phone, reported to the purveyor in one email per property."
+        subtitle="Every assembly on file, tested from the phone, one report email per property."
         actions={
           <Button onClick={() => setEditDevice({ type: 'PVB', size: '1"', hazard: 'irrigation', installYear: Number(year) })}>
             <Plus /> Add device
@@ -86,10 +86,10 @@ export default function Backflow() {
 
       <div className="mb-6 grid grid-cols-2 gap-3 md:grid-cols-5">
         <Stat label="Devices on file" value={data.backflowDevices.length} icon={<Droplets />} />
-        <Stat label="Tested this season" value={`${testsThisYear.length}`} sub={`of ${data.backflowDevices.length} devices`} tone="success" icon={<ClipboardCheck />} />
-        <Stat label="Failed / repaired" value={failed} tone={failed ? 'warning' : 'default'} icon={<AlertTriangle />} />
-        <Stat label="Reports not sent" value={unsent} tone={unsent ? 'danger' : 'default'} icon={<Send />} onClick={() => setTab('tests')} />
-        <Stat label="Hours saved" value={`${(testsThisYear.length * 0.3).toFixed(1)} h`} sub="vs. handwriting reports" tone="accent" icon={<Clock />} />
+        <Stat label="Tested this season" value={`${testsThisYear.length}`} sub={`of ${data.backflowDevices.length} devices`} icon={<ClipboardCheck />} />
+        <Stat label="Failed / repaired" value={failed} tone={failed ? 'danger' : 'default'} icon={<AlertTriangle />} />
+        <Stat label="Reports not sent" value={unsent} tone={unsent ? 'accent' : 'default'} icon={<Send />} onClick={() => setTab('tests')} />
+        <Stat label="Hours saved" value={`${(testsThisYear.length * 0.3).toFixed(1)} h`} sub="vs. handwriting reports" icon={<Clock />} />
       </div>
 
       <Tabs
@@ -137,13 +137,12 @@ export default function Backflow() {
                     const p = L.property(pid);
                     const pv = L.purveyor(p?.purveyorId ?? devices[0].purveyorId);
                     return [
-                      <TR key={`h-${pid}`} className="bg-muted/50 hover:bg-muted/50">
-                        <TD colSpan={8} className="py-2">
-                          <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm">
-                            <span className="font-semibold">{p?.name}</span>
-                            <ClientLink id={p?.clientId} className="text-muted-foreground font-normal" />
-                            <span className="text-muted-foreground">· {pv?.name}</span>
-                            <Badge tone="outline">{devices.length} device{devices.length === 1 ? '' : 's'}</Badge>
+                      <TR key={`h-${pid}`} className="bg-muted/40 hover:bg-muted/40">
+                        <TD colSpan={8} className="py-1.5 text-[12.5px]">
+                          <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                            <span className="font-medium">{p?.name}</span>
+                            <ClientLink id={p?.clientId} className="font-normal text-muted-foreground" />
+                            <span className="text-muted-foreground">· {pv?.name} · {devices.length} device{devices.length === 1 ? '' : 's'}</span>
                           </div>
                         </TD>
                       </TR>,
@@ -154,7 +153,7 @@ export default function Backflow() {
                             <TD className="font-medium">{d.make} {d.model}</TD>
                             <TD><Badge tone={TYPE_TONE[d.type]}>{d.type}</Badge></TD>
                             <TD>{d.size}</TD>
-                            <TD className="font-mono text-xs">{d.serial}</TD>
+                            <TD className="font-mono text-[12.5px]">{d.serial}</TD>
                             <TD className="text-muted-foreground">{d.location}</TD>
                             <TD>{d.installYear}</TD>
                             <TD>
@@ -169,7 +168,7 @@ export default function Backflow() {
                             </TD>
                             <TD className="text-right">
                               <div className="flex justify-end gap-1">
-                                <Button size="xs" variant="accent" onClick={() => setTestFor(d)}><ClipboardCheck /> Enter test</Button>
+                                <Button size="xs" variant="outline" onClick={() => setTestFor(d)}><ClipboardCheck /> Enter test</Button>
                                 <Button size="xs" variant="ghost" onClick={() => setEditDevice(d)}><Pencil /></Button>
                               </div>
                             </TD>
@@ -237,7 +236,7 @@ export default function Backflow() {
                       <TD className="font-medium">{p?.name}</TD>
                       <TD>
                         <div>{d?.make} {d?.model}</div>
-                        <div className="font-mono text-xs text-muted-foreground">{d?.serial}</div>
+                        <div className="font-mono text-[12.5px] text-muted-foreground">{d?.serial}</div>
                       </TD>
                       <TD>{tester?.name}</TD>
                       <TD><Badge tone={t.result === 'pass' ? 'success' : 'danger'}>{t.result.toUpperCase()}</Badge></TD>
@@ -267,10 +266,9 @@ export default function Backflow() {
                     <CardTitle className="leading-snug">{pv.name}</CardTitle>
                     <Button size="xs" variant="ghost" onClick={() => setEditPurveyor(pv)}><Pencil /></Button>
                   </div>
-                  <div className="flex flex-wrap gap-1 pt-1">
-                    <Badge tone={pv.submitMethod === 'email' ? 'info' : pv.submitMethod === 'portal' ? 'accent' : 'neutral'}>{pv.submitMethod}</Badge>
-                    <Badge tone="outline">{devCount} devices</Badge>
-                    <Badge tone="success">{filed} filed {year}</Badge>
+                  <div className="flex flex-wrap items-center gap-2 pt-1 text-[12.5px] text-muted-foreground">
+                    <Badge tone="neutral">{pv.submitMethod === 'email' ? 'Email' : pv.submitMethod === 'portal' ? 'Portal' : 'Fax'}</Badge>
+                    <span>{devCount} devices · {filed} filed {year}</span>
                   </div>
                 </CardHeader>
                 <CardContent className="space-y-1 text-sm">
@@ -324,7 +322,7 @@ export default function Backflow() {
                       <TD>{r.job ? <JobStatusBadge status={r.job.status} /> : <span className="text-xs text-muted-foreground">Not on contract</span>}</TD>
                       <TD className="text-right">
                         {r.job && r.job.status === 'unscheduled' && (
-                          <Button size="xs" onClick={() => setScheduleFor({ jobId: r.job!.id, date: data.today, crewId: 'crew_irr' })}>Schedule test</Button>
+                          <Button size="xs" variant="outline" onClick={() => setScheduleFor({ jobId: r.job!.id, date: data.today, crewId: 'crew_irr' })}>Schedule test</Button>
                         )}
                       </TD>
                     </TR>
@@ -477,8 +475,8 @@ function TestDialog({ device, onClose }: { device: BackflowDevice; onClose: () =
           <Field label="Gauge calibration date"><Input type="date" value={gaugeCalDate} onChange={(e) => setGaugeCalDate(e.target.value)} /></Field>
         </div>
 
-        <div className="rounded-lg border bg-muted/30 p-4">
-          <div className="mb-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">Readings · {device.type}</div>
+        <div className="rounded-lg bg-muted/50 p-3">
+          <div className="mb-3 text-xs font-medium text-muted-foreground">Readings · {device.type}</div>
           <div className="grid gap-3 sm:grid-cols-3">
             {device.type === 'PVB' && (
               <>
@@ -505,9 +503,9 @@ function TestDialog({ device, onClose }: { device: BackflowDevice; onClose: () =
           </div>
         </div>
 
-        <div className={cn('flex items-center justify-between rounded-lg border p-4', result === 'pass' ? 'border-success/40 bg-success/10' : 'border-destructive/40 bg-destructive/10')}>
+        <div className={cn('flex items-center justify-between rounded-lg p-4', result === 'pass' ? 'bg-success/10' : 'bg-destructive/10')}>
           <div>
-            <div className={cn('text-3xl font-black tracking-tight', result === 'pass' ? 'text-success' : 'text-destructive')}>{result.toUpperCase()}</div>
+            <div className={cn('text-2xl font-semibold tracking-tight', result === 'pass' ? 'text-success' : 'text-destructive')}>{result.toUpperCase()}</div>
             <div className="text-xs text-muted-foreground">Auto-evaluated: {auto.toUpperCase()}{override !== 'auto' ? ' · overridden' : ''}</div>
           </div>
           <Field label="Override">
@@ -659,7 +657,7 @@ function ReportDialog({ test, onClose }: { test: BackflowTest; onClose: () => vo
 
   return (
     <Dialog open onClose={onClose} title="Backflow assembly test report" description={test.sentToPurveyorAt ? `Sent to purveyor ${fmtDateTime(test.sentToPurveyorAt)}` : 'Not yet sent'} size="lg" footer={<Button variant="outline" onClick={onClose}>Close</Button>}>
-      <div className="rounded-lg border bg-white p-6 text-sm text-[hsl(205_30%_14%)] shadow-inner">
+      <div className="hairline rounded-lg bg-white p-6 text-sm text-[hsl(205_30%_14%)]">
         <div className="flex items-start justify-between border-b pb-4">
           <div>
             <div className="text-lg font-bold">{data.settings.name}</div>
@@ -667,7 +665,7 @@ function ReportDialog({ test, onClose }: { test: BackflowTest; onClose: () => vo
             <div className="text-xs">{data.settings.serviceLine} · {data.settings.email}</div>
           </div>
           <div className="text-right">
-            <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Submitted to</div>
+            <div className="text-xs font-medium text-muted-foreground">Submitted to</div>
             <div className="font-semibold">{pv?.name}</div>
             <div className="text-xs">{pv?.email}</div>
             {device?.purveyorAccountNo && <div className="text-xs">Acct {device.purveyorAccountNo}</div>}
@@ -675,24 +673,24 @@ function ReportDialog({ test, onClose }: { test: BackflowTest; onClose: () => vo
         </div>
         <div className="grid grid-cols-2 gap-4 py-4">
           <div>
-            <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Service address</div>
+            <div className="text-xs font-medium text-muted-foreground">Service address</div>
             <div className="font-medium">{p?.address}, {p?.city}</div>
             <div>{p?.name}</div>
           </div>
           <div>
-            <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Owner / customer</div>
+            <div className="text-xs font-medium text-muted-foreground">Owner / customer</div>
             <div className="font-medium">{c?.name}</div>
             <div>{c?.contactName}</div>
             <div className="text-xs">{c?.phone}</div>
           </div>
           <div>
-            <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Assembly</div>
+            <div className="text-xs font-medium text-muted-foreground">Assembly</div>
             <div className="font-medium">{device?.make} {device?.model} · {device?.type} · {device?.size}</div>
-            <div className="font-mono text-xs">S/N {device?.serial}</div>
+            <div className="font-mono text-[12.5px]">S/N {device?.serial}</div>
             <div className="text-xs">{device?.location} · {device?.hazard} hazard</div>
           </div>
           <div>
-            <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Tester</div>
+            <div className="text-xs font-medium text-muted-foreground">Tester</div>
             <div className="font-medium">{tester?.name}</div>
             <div className="text-xs">License {tester?.testerLicense}</div>
             <div className="text-xs">Gauge {test.gaugeSerial} · calibrated {fmtDateLong(test.gaugeCalDate)}</div>
@@ -713,10 +711,10 @@ function ReportDialog({ test, onClose }: { test: BackflowTest; onClose: () => vo
           </tbody>
         </table>
         {test.repairs && (
-          <div className="mt-3 rounded border border-dashed p-2 text-xs"><span className="font-semibold">Repairs:</span> {test.repairs}</div>
+          <div className="mt-3 rounded bg-muted/50 p-2 text-xs"><span className="font-semibold">Repairs:</span> {test.repairs}</div>
         )}
         <div className="mt-4 flex items-center justify-between">
-          <div className={cn('rounded px-3 py-1 text-lg font-black', test.result === 'pass' ? 'bg-success/15 text-success' : 'bg-destructive/15 text-destructive')}>{test.result.toUpperCase()}</div>
+          <div className={cn('rounded px-3 py-1 text-lg font-semibold', test.result === 'pass' ? 'bg-success/15 text-success' : 'bg-destructive/15 text-destructive')}>{test.result.toUpperCase()}</div>
           <div className="text-right text-xs">
             <div className="mb-6 w-56 border-b border-foreground/50" />
             Tester signature · {tester?.name}

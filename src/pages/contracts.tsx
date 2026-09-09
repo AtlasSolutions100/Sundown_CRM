@@ -79,9 +79,9 @@ export default function Contracts() {
   return (
     <div>
       <PageHeader
-        eyebrow="Sold vs. done"
+       
         title="Completion Audit"
-        subtitle="Every contracted service for the season, live. Farthest overdue floats to the top so the week plans itself."
+        subtitle="Every contracted service this season, sold versus done. Farthest overdue first."
         actions={
           <Button variant="outline" onClick={exportCsv}>
             <Download /> Export audit (CSV)
@@ -91,9 +91,9 @@ export default function Contracts() {
 
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
         <Stat label="Active contracts" value={progress.length} sub={`${data.contracts.length} total on file`} />
-        <Stat label="Items complete" value={`${doneLines}/${totalLines}`} sub={totalLines ? `${Math.round((doneLines / totalLines) * 100)}% of season` : ''} tone="success" />
-        <Stat label="Still on the table" value={money(remaining, { cents: false })} sub="Contracted work not yet done" tone="accent" />
-        <Stat label="Behind" value={behindCount} sub={behindCount ? `${sum(progress.map((p) => p.behind))} items past window` : 'Nothing overdue'} tone={behindCount ? 'danger' : 'success'} />
+        <Stat label="Items complete" value={`${doneLines}/${totalLines}`} sub={totalLines ? `${Math.round((doneLines / totalLines) * 100)}% of season` : ''} />
+        <Stat label="Still on the table" value={money(remaining, { cents: false })} sub="Contracted work not yet done" />
+        <Stat label="Behind" value={behindCount} sub={behindCount ? `${sum(progress.map((p) => p.behind))} items past window` : 'Nothing overdue'} tone={behindCount ? 'danger' : 'default'} />
       </div>
 
       <div className="mt-5 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
@@ -198,8 +198,8 @@ function ContractCard({ p, expanded, onToggle, onSchedule, onDone }: { p: Contra
   const barTone = p.status === 'behind' ? 'danger' : p.status === 'due' ? 'warning' : p.status === 'complete' ? 'primary' : 'success';
 
   return (
-    <Card className={cn(p.status === 'behind' && 'border-destructive/40')}>
-      <button type="button" onClick={onToggle} className="w-full text-left">
+    <Card>
+      <button type="button" onClick={onToggle} className="w-full rounded-xl text-left transition-colors hover:bg-muted/30">
         <CardContent className="p-4">
           <div className="flex flex-col gap-3 md:flex-row md:items-center">
             <div className="flex min-w-0 flex-1 items-start gap-2">
@@ -219,8 +219,8 @@ function ContractCard({ p, expanded, onToggle, onSchedule, onDone }: { p: Contra
             </div>
             <div className="flex items-center gap-3 md:w-72">
               <div className="text-right">
-                <div className="text-2xl font-bold tabular leading-none">
-                  {p.done}<span className="text-base font-medium text-muted-foreground">/{p.total}</span>
+                <div className="num text-[22px] font-semibold leading-none">
+                  {p.done}<span className="text-sm font-normal text-muted-foreground">/{p.total}</span>
                 </div>
                 <div className="text-[11px] text-muted-foreground">items done</div>
               </div>
@@ -293,12 +293,12 @@ function ContractCard({ p, expanded, onToggle, onSchedule, onDone }: { p: Contra
                       </TD>
                       <TD className="text-right">
                         {job && (l.state === 'behind' || l.state === 'due' || l.state === 'upcoming') && (
-                          <Button size="xs" variant={l.state === 'behind' ? 'primary' : 'outline'} onClick={() => onSchedule(job.id, title)}>
+                          <Button size="xs" variant="outline" onClick={() => onSchedule(job.id, title)}>
                             Schedule
                           </Button>
                         )}
                         {job && l.state === 'scheduled' && (
-                          <Button size="xs" variant="success" onClick={() => onDone(job.id, title)}>
+                          <Button size="xs" variant="outline" onClick={() => onDone(job.id, title)}>
                             Mark done
                           </Button>
                         )}

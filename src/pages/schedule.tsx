@@ -107,9 +107,9 @@ export default function Schedule() {
   return (
     <div>
       <PageHeader
-        eyebrow="Dispatch"
+       
         title="Schedule & Routes"
-        subtitle="Crews see only their work. Drop a job in and the route rebuilds itself."
+        subtitle="Each crew sees only its own route. Add a stop and the route rebuilds."
         actions={
           <div className="flex flex-wrap items-center gap-2">
             <Button variant="outline" size="icon" onClick={() => setDate(addDaysIso(date, -1))} aria-label="Previous day"><ChevronLeft /></Button>
@@ -127,17 +127,17 @@ export default function Schedule() {
           const isSel = d === date;
           const isToday = d === data.today;
           return (
-            <button key={d} type="button" onClick={() => setDate(d)} className={cn('rounded-lg border bg-card p-2.5 text-left transition-colors hover:border-primary/40', isSel && 'border-primary bg-primary/5 ring-1 ring-primary/30')}>
+            <button key={d} type="button" onClick={() => setDate(d)} className={cn('surface p-2.5 text-left transition-colors hover:bg-muted/40', isSel && 'bg-foreground/[0.06] hover:bg-foreground/[0.06]')}>
               <div className="flex items-center justify-between text-xs">
-                <span className={cn('font-semibold', isToday && 'text-accent-foreground')}>{format(parseISO(d), 'EEE')}</span>
-                <span className="text-muted-foreground">{format(parseISO(d), 'M/d')}</span>
+                <span className={cn('font-medium', isToday && 'text-accent')}>{format(parseISO(d), 'EEE')}</span>
+                <span className="num text-muted-foreground">{format(parseISO(d), 'M/d')}</span>
               </div>
-              <div className="mt-1.5 flex flex-wrap gap-1">
+              <div className="mt-1.5 flex flex-wrap gap-2">
                 {data.crews.map((c) => {
                   const n = jobsFor(c.id, d).length;
                   if (!n) return null;
                   return (
-                    <span key={c.id} className="inline-flex items-center gap-1 rounded-full bg-muted px-1.5 py-0.5 text-[10px] font-semibold tabular" title={`${c.name}: ${n} jobs`}>
+                    <span key={c.id} className="num inline-flex items-center gap-1 text-[11px] text-muted-foreground" title={`${c.name}: ${n} jobs`}>
                       <span className="size-1.5 rounded-full" style={{ background: `hsl(${c.color})` }} />{n}
                     </span>
                   );
@@ -186,7 +186,7 @@ export default function Schedule() {
                         const s = service(j.serviceId);
                         const mins = s && p ? estimateMinutes(s, p) : 30;
                         return (
-                          <li key={j.id} className={cn('flex flex-col gap-2 py-2.5 sm:flex-row sm:items-center', j.status === 'in_progress' && 'bg-accent/5 -mx-2 px-2 rounded-md', j.status === 'weather_hold' && 'opacity-70')}>
+                          <li key={j.id} className={cn('flex flex-col gap-2 py-2.5 sm:flex-row sm:items-center', j.status === 'weather_hold' && 'opacity-70')}>
                             <div className="flex flex-col">
                               <button type="button" disabled={i === 0} onClick={() => move(c, date, j.id, -1)} className="rounded p-0.5 text-muted-foreground hover:bg-muted disabled:opacity-30" aria-label="Move up"><ArrowUp className="size-3.5" /></button>
                               <span className="text-center text-xs font-bold tabular">{i + 1}</span>
@@ -201,10 +201,10 @@ export default function Schedule() {
                               <div className="text-xs text-muted-foreground">{p?.address}, {p?.city} · {j.title} · ~{mins} min</div>
                             </div>
                             <div className="flex items-center gap-2 sm:justify-end">
-                              <span className="w-20 text-right text-sm font-medium tabular">{money(j.price)}</span>
-                              {j.status === 'scheduled' && <Button size="xs" variant="accent" onClick={() => { actions.setJobStatus(j.id, 'in_progress'); toast({ title: 'Started', description: p?.name }); }}><Play /> Start</Button>}
-                              {(j.status === 'in_progress' || j.status === 'en_route') && <Button size="xs" variant="success" onClick={() => { actions.setJobStatus(j.id, 'done'); toast({ title: 'Done', description: `${p?.name} · ${j.title}` }); }}><Check /> Done</Button>}
-                              {j.status === 'weather_hold' && <Button size="xs" variant="outline" onClick={() => { actions.weatherHold(j.id, false); toast({ title: 'Released from weather hold' }); }}><CloudSun /> Release</Button>}
+                              <span className="num w-20 text-right text-sm font-medium">{money(j.price)}</span>
+                              {j.status === 'scheduled' && <Button size="sm" variant="outline" onClick={() => { actions.setJobStatus(j.id, 'in_progress'); toast({ title: 'Started', description: p?.name }); }}><Play /> Start</Button>}
+                              {(j.status === 'in_progress' || j.status === 'en_route') && <Button size="sm" variant="outline" onClick={() => { actions.setJobStatus(j.id, 'done'); toast({ title: 'Done', description: `${p?.name} · ${j.title}` }); }}><Check /> Done</Button>}
+                              {j.status === 'weather_hold' && <Button size="sm" variant="outline" onClick={() => { actions.weatherHold(j.id, false); toast({ title: 'Released from weather hold' }); }}><CloudSun /> Release</Button>}
                               {j.status !== 'done' && <Button size="xs" variant="ghost" onClick={() => { actions.unscheduleJob(j.id); toast({ title: 'Back to waiting list', description: j.title, tone: 'info' }); }} aria-label="Unschedule"><X /></Button>}
                             </div>
                           </li>
@@ -221,17 +221,19 @@ export default function Schedule() {
         {/* Waiting list */}
         <div className="space-y-4">
           {urgentUnscheduled.length > 0 && (
-            <Card className="border-destructive/40 bg-destructive/5">
-              <CardContent className="p-4">
-                <div className="mb-2 flex items-center gap-2 text-sm font-semibold text-destructive"><Zap className="size-4" /> Urgent, not on a schedule</div>
-                <div className="space-y-2">
+            <Card>
+              <CardHeader className="pb-1">
+                <CardTitle className="flex items-center gap-2"><Zap className="size-4 text-destructive" /> Urgent, not on a schedule</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="-mx-5 divide-y divide-border/70">
                   {urgentUnscheduled.map(({ j }) => (
-                    <div key={j.id} className="flex items-center justify-between gap-2 rounded-md border bg-card p-2.5">
+                    <div key={j.id} className="flex items-center justify-between gap-2 px-5 py-2.5">
                       <div className="min-w-0">
                         <div className="truncate text-sm font-medium">{j.title}</div>
                         <div className="truncate text-xs text-muted-foreground">{property(j.propertyId)?.name}</div>
                       </div>
-                      <Button size="xs" variant="destructive" onClick={() => addUrgentAndReroute(j)}>Add to {date === data.today ? 'today' : fmtDate(date)} & re-route</Button>
+                      <Button size="sm" variant="outline" onClick={() => addUrgentAndReroute(j)}>Add to {date === data.today ? 'today' : fmtDate(date)} & re-route</Button>
                     </div>
                   ))}
                 </div>
@@ -248,9 +250,9 @@ export default function Schedule() {
               {waiting.length === 0 ? (
                 <EmptyState title="Waiting list is empty" />
               ) : (
-                <div className="max-h-[520px] space-y-1.5 overflow-y-auto pr-1 scrollbar-thin">
-                  {waiting.map(({ j, behindDays, urgent, bucket }) => (
-                    <label key={j.id} className={cn('flex cursor-pointer items-start gap-2.5 rounded-md border p-2.5 text-sm transition-colors hover:bg-muted/40', selected.has(j.id) && 'border-primary bg-primary/5', bucket === 1 && 'border-destructive/40')}>
+                <div className="-mx-5 max-h-[520px] divide-y divide-border/70 overflow-y-auto scrollbar-thin">
+                  {waiting.map(({ j, behindDays, urgent }) => (
+                    <label key={j.id} className={cn('flex cursor-pointer items-start gap-2.5 px-5 py-2.5 text-sm transition-colors hover:bg-muted/40', selected.has(j.id) && 'bg-foreground/[0.05]')}>
                       <input type="checkbox" checked={selected.has(j.id)} onChange={() => toggle(j.id)} className="mt-1 size-4 accent-[hsl(var(--primary))]" />
                       <div className="min-w-0 flex-1">
                         <div className="flex flex-wrap items-center gap-1.5">

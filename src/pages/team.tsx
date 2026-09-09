@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { UserCog, Users, Clock, Pencil, Check, X, Lightbulb } from 'lucide-react';
+import { UserCog, Users, Clock, Pencil, Check, Lightbulb } from 'lucide-react';
 import { useStore } from '@/data/store';
 import { Button, Card, CardHeader, CardTitle, CardDescription, CardContent, Badge, Input, Select, Field, Dialog, Table, THead, TBody, TR, TH, TD, Stat, PageHeader, Avatar, useToast, type Tone } from '@/components/ui';
 import { DivisionBadge } from '@/components/shared';
@@ -7,7 +7,7 @@ import { money } from '@/lib/utils';
 import type { Role, TeamMember } from '@/data/types';
 
 const ROLE_LABEL: Record<Role, string> = { owner: 'Owner', ops: 'Ops Manager', foreman: 'Foreman', crew: 'Crew' };
-const ROLE_TONE: Record<Role, Tone> = { owner: 'accent', ops: 'primary', foreman: 'info', crew: 'neutral' };
+const ROLE_TONE: Record<Role, Tone> = { owner: 'primary', ops: 'neutral', foreman: 'neutral', crew: 'outline' };
 
 const CAPABILITIES: { name: string; owner: boolean; ops: boolean; foreman: boolean; crew: boolean }[] = [
   { name: 'See pricing & margins', owner: true, ops: false, foreman: false, crew: false },
@@ -33,19 +33,17 @@ export default function Team() {
 
   return (
     <div>
-      <PageHeader eyebrow="Setup" title="Team & roles" subtitle="Crews, logins and what each role can see." />
+      <PageHeader title="Team & roles" subtitle="Crews, logins and what each role can see." />
 
       <div className="mb-6 grid grid-cols-3 gap-3">
         <Stat label="Team members" value={data.team.length} icon={<Users />} />
         <Stat label="Crews" value={data.crews.length} icon={<UserCog />} />
-        <Stat label="On the clock now" value={onClock} tone="success" icon={<Clock />} />
+        <Stat label="On the clock now" value={onClock} icon={<Clock />} />
       </div>
 
-      <div className="mb-6 rounded-lg border border-accent/40 bg-accent/5 p-4 text-sm">
-        <div className="flex items-start gap-3">
-          <Lightbulb className="mt-0.5 size-4 shrink-0 text-accent" />
-          <p>David's goal: train an ops manager on this instead of on five years of head-knowledge. Everything they need is in the sidebar; pricing and margins stay owner-only.</p>
-        </div>
+      <div className="mb-6 flex items-start gap-2.5 rounded-lg bg-muted/50 p-3 text-[13px]">
+        <Lightbulb className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
+        <p>David's goal: train an ops manager on this instead of on five years of head-knowledge. Everything they need is in the sidebar; pricing and margins stay owner-only.</p>
       </div>
 
       <div className="mb-6 grid gap-4 md:grid-cols-2">
@@ -64,13 +62,13 @@ export default function Team() {
                 <CardDescription>Lead: {lead?.name ?? '—'}</CardDescription>
               </CardHeader>
               <CardContent className="space-y-3">
-                <div className="flex flex-wrap gap-2">
+                <div className="divide-y divide-border/70">
                   {members.map((m) => (
-                    <span key={m.id} className="inline-flex items-center gap-2 rounded-full border bg-card py-1 pl-1 pr-3 text-sm">
+                    <div key={m.id} className="flex items-center gap-2.5 py-2 text-sm">
                       <Avatar name={m.name} hue={c.color} className="size-6 text-[10px]" />
-                      {m.name}
-                      {m.id === c.leadId && <Badge tone="info">Lead</Badge>}
-                    </span>
+                      <span className="flex-1">{m.name}</span>
+                      {m.id === c.leadId && <Badge tone="outline">Lead</Badge>}
+                    </div>
                   ))}
                 </div>
                 <div className="flex gap-2">
@@ -166,7 +164,7 @@ export default function Team() {
                 <TR key={c.name}>
                   <TD className="font-medium">{c.name}</TD>
                   {(['owner', 'ops', 'foreman', 'crew'] as const).map((r) => (
-                    <TD key={r} className="text-center">{c[r] ? <Check className="mx-auto size-4 text-success" /> : <X className="mx-auto size-4 text-muted-foreground/40" />}</TD>
+                    <TD key={r} className="text-center">{c[r] ? <Check className="mx-auto size-4 text-success" /> : <span className="text-muted-foreground/50">–</span>}</TD>
                   ))}
                 </TR>
               ))}

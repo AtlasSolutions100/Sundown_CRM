@@ -72,8 +72,8 @@ const SOURCE_ICON: Record<TicketSource, LucideIcon> = { call: Phone, text: Messa
 export function SourceIcon({ source, className }: { source: TicketSource; className?: string }) {
   const I = SOURCE_ICON[source];
   return (
-    <span title={titleCase(source)} className={cn('inline-flex size-6 items-center justify-center rounded-md bg-muted text-muted-foreground', className)}>
-      <I className="size-3.5" />
+    <span title={titleCase(source)} className={cn('inline-flex size-5 items-center justify-center text-muted-foreground', className)}>
+      <I className="size-4" strokeWidth={1.9} />
     </span>
   );
 }

@@ -61,9 +61,9 @@ export default function Estimates() {
   return (
     <div>
       <PageHeader
-        eyebrow="Money"
+       
         title="Estimates"
-        subtitle="Template-driven bids priced by your formula: trip fee + rate per 1,000 sqft. Build one on the spot, send it, convert it to a job."
+        subtitle="Template-driven bids priced by your formula. Build on the spot, send, convert to a job."
         actions={
           <Button onClick={openNew}>
             <Plus /> New estimate
@@ -73,8 +73,8 @@ export default function Estimates() {
 
       <div className="mb-6 grid grid-cols-2 gap-3 lg:grid-cols-4">
         <Stat label="Drafts" value={drafts.length} sub="Not sent yet" icon={<FileText />} />
-        <Stat label="Sent / open pipeline" value={money(sum(sent.map(estTotal)), { cents: false })} sub={`${sent.length} awaiting a decision`} tone="accent" />
-        <Stat label="Approved this month" value={approvedThisMonth.length} sub={money(sum(approvedThisMonth.map(estTotal)), { cents: false })} tone="success" />
+        <Stat label="Sent / open pipeline" value={money(sum(sent.map(estTotal)), { cents: false })} sub={`${sent.length} awaiting a decision`} />
+        <Stat label="Approved this month" value={approvedThisMonth.length} sub={money(sum(approvedThisMonth.map(estTotal)), { cents: false })} />
         <Stat label="Win rate" value={`${Math.round(winRate * 100)}%`} sub={`${approved.length} won · ${declined.length} lost · ${sent.length} open`} />
       </div>
 
@@ -100,7 +100,7 @@ export default function Estimates() {
                 const t = ticket(e.ticketId);
                 return (
                   <TR key={e.id}>
-                    <TD className="font-mono text-xs">{e.number}</TD>
+                    <TD className="num text-muted-foreground">{e.number}</TD>
                     <TD>
                       <div className="font-medium">{e.title}</div>
                       {t && <div className="text-xs text-muted-foreground">Ticket #{t.number}</div>}
@@ -119,7 +119,7 @@ export default function Estimates() {
                         {titleCase(e.status)}
                       </Badge>
                     </TD>
-                    <TD className="text-right font-medium tabular">{money(estTotal(e))}</TD>
+                    <TD className="text-right font-medium num">{money(estTotal(e))}</TD>
                     <TD className="whitespace-nowrap text-muted-foreground">
                       {fmtDate(e.createdAt)}
                       {e.sentAt ? ` / ${fmtDate(e.sentAt)}` : ''}
@@ -136,6 +136,7 @@ export default function Estimates() {
                             </Button>
                             <Button
                               size="xs"
+                              variant="outline"
                               onClick={() => {
                                 actions.sendEstimate(e.id);
                                 toast({ title: `Estimate #${e.number} sent`, description: `${client(e.clientId)?.name} · ${money(estTotal(e))}` });
@@ -149,7 +150,7 @@ export default function Estimates() {
                           <>
                             <Button
                               size="xs"
-                              variant="success"
+                              variant="outline"
                               onClick={() => {
                                 actions.approveEstimate(e.id);
                                 toast({ title: `Estimate #${e.number} approved`, description: 'Create the job when you are ready to schedule.' });
@@ -180,7 +181,7 @@ export default function Estimates() {
                         {e.status === 'approved' && t && !t.jobId && (
                           <Button
                             size="xs"
-                            variant="accent"
+                            variant="outline"
                             onClick={() => {
                               actions.createJobFromTicket(t.id);
                               toast({ title: 'Job created', description: 'Find it on the waiting list in Schedule & Routes.' });
@@ -259,7 +260,7 @@ function EditorDialog({ draft, onChange, onClose, onSave }: { draft: Draft; onCh
             <Printer /> {preview ? 'Back to edit' : 'Print preview'}
           </Button>
           <div className="mr-auto text-sm text-muted-foreground">
-            Total <span className="text-base font-bold text-foreground tabular">{money(total)}</span>
+            Total <span className="num text-base font-semibold text-foreground">{money(total)}</span>
           </div>
           <Button variant="outline" onClick={onClose}>
             Cancel
@@ -316,7 +317,7 @@ function EditorDialog({ draft, onChange, onClose, onSave }: { draft: Draft; onCh
             <Input value={draft.title} onChange={(e) => onChange({ ...draft, title: e.target.value })} placeholder="e.g. Backyard paver patio + 3 trees" />
           </Field>
 
-          <div className="rounded-md border">
+          <div className="hairline overflow-hidden rounded-lg">
             <Table>
               <THead>
                 <TR>
@@ -355,15 +356,15 @@ function EditorDialog({ draft, onChange, onClose, onSave }: { draft: Draft; onCh
                         {svc && <div className="mt-1 text-[11px] text-muted-foreground">Formula: {pricingSummary(svc.pricing)}</div>}
                       </TD>
                       <TD>
-                        <Input type="number" step="0.25" min={0} disabled={info} value={l.qty} onChange={(e) => patchLine(l.id, { qty: Number(e.target.value) })} className="h-8 text-right tabular" />
+                        <Input type="number" step="0.25" min={0} disabled={info} value={l.qty} onChange={(e) => patchLine(l.id, { qty: Number(e.target.value) })} className="h-8 text-right num" />
                       </TD>
                       <TD>
                         <Input value={l.unit} disabled={info} onChange={(e) => patchLine(l.id, { unit: e.target.value })} className="h-8" />
                       </TD>
                       <TD>
-                        <Input type="number" step="0.01" min={0} disabled={info} value={l.unitPrice} onChange={(e) => patchLine(l.id, { unitPrice: Number(e.target.value) })} className="h-8 text-right tabular" />
+                        <Input type="number" step="0.01" min={0} disabled={info} value={l.unitPrice} onChange={(e) => patchLine(l.id, { unitPrice: Number(e.target.value) })} className="h-8 text-right num" />
                       </TD>
-                      <TD className={cn('text-right font-medium tabular', info && 'text-muted-foreground')}>{info ? '—' : money(l.qty * l.unitPrice)}</TD>
+                      <TD className={cn('text-right font-medium num', info && 'text-muted-foreground')}>{info ? '—' : money(l.qty * l.unitPrice)}</TD>
                       <TD>
                         <button type="button" onClick={() => setLines(draft.lines.filter((x) => x.id !== l.id))} className="rounded p-1 text-muted-foreground hover:bg-muted hover:text-destructive" aria-label="Remove line">
                           <Trash2 className="size-4" />
@@ -425,10 +426,10 @@ function ProposalBody({ est }: { est: Pick<Estimate, 'id' | 'number' | 'clientId
   ];
   const info = est.lines.filter((l) => l.kind === 'info');
   return (
-    <div className="rounded-lg border bg-white p-6 text-[13px] text-neutral-900 shadow-inner">
+    <div className="hairline rounded-lg bg-white p-6 text-[13px] text-neutral-900">
       <div className="flex items-start justify-between border-b pb-4">
         <div>
-          <div className="text-lg font-bold">{s.name}</div>
+          <div className="text-lg font-semibold">{s.name}</div>
           <div className="text-neutral-600">
             {s.address}, {s.city}
             <br />
@@ -436,7 +437,7 @@ function ProposalBody({ est }: { est: Pick<Estimate, 'id' | 'number' | 'clientId
           </div>
         </div>
         <div className="text-right">
-          <div className="text-2xl font-black tracking-tight">PROPOSAL</div>
+          <div className="text-xl font-semibold tracking-tight">Proposal</div>
           {est.number > 0 && <div className="text-neutral-600">#{est.number}</div>}
           <div className="text-neutral-600">{fmtDateLong(est.createdAt)}</div>
           <div className="text-neutral-600">Valid {est.validDays} days</div>
@@ -444,7 +445,7 @@ function ProposalBody({ est }: { est: Pick<Estimate, 'id' | 'number' | 'clientId
       </div>
       <div className="grid gap-4 py-4 sm:grid-cols-2">
         <div>
-          <div className="text-[10px] font-semibold uppercase tracking-wider text-neutral-500">Prepared for</div>
+          <div className="text-[11.5px] font-medium text-neutral-500">Prepared for</div>
           <div className="font-medium">{c?.name}</div>
           <div className="text-neutral-600">
             {c?.contactName}
@@ -453,7 +454,7 @@ function ProposalBody({ est }: { est: Pick<Estimate, 'id' | 'number' | 'clientId
           </div>
         </div>
         <div>
-          <div className="text-[10px] font-semibold uppercase tracking-wider text-neutral-500">Property</div>
+          <div className="text-[11.5px] font-medium text-neutral-500">Property</div>
           <div className="font-medium">{p?.name}</div>
           <div className="text-neutral-600">
             {p?.address}, {p?.city}
@@ -467,28 +468,28 @@ function ProposalBody({ est }: { est: Pick<Estimate, 'id' | 'number' | 'clientId
         if (!lines.length) return null;
         return (
           <div key={g.kind} className="mb-3">
-            <div className="border-b text-[10px] font-semibold uppercase tracking-wider text-neutral-500">{g.label}</div>
+            <div className="border-b text-[11.5px] font-medium text-neutral-500">{g.label}</div>
             {lines.map((l) => (
               <div key={l.id} className="flex items-baseline justify-between gap-4 border-b border-neutral-100 py-1.5">
                 <span>{l.description}</span>
                 <span className="shrink-0 text-neutral-500 tabular">
                   {l.qty} {l.unit} × {money(l.unitPrice)}
                 </span>
-                <span className="w-24 shrink-0 text-right font-medium tabular">{money(l.qty * l.unitPrice)}</span>
+                <span className="w-24 shrink-0 text-right font-medium num">{money(l.qty * l.unitPrice)}</span>
               </div>
             ))}
           </div>
         );
       })}
       <div className="flex justify-end">
-        <div className="flex w-64 justify-between border-t-2 border-neutral-900 pt-2 text-base font-bold">
+        <div className="flex w-64 justify-between border-t-2 border-neutral-900 pt-2 text-base font-semibold">
           <span>Total</span>
-          <span className="tabular">{money(estTotal(est))}</span>
+          <span className="num">{money(estTotal(est))}</span>
         </div>
       </div>
       {info.length > 0 && (
         <div className="mt-4 rounded bg-neutral-50 p-3 text-neutral-700">
-          <div className="text-[10px] font-semibold uppercase tracking-wider text-neutral-500">Notes</div>
+          <div className="text-[11.5px] font-medium text-neutral-500">Notes</div>
           {info.map((l) => (
             <div key={l.id}>{l.description}</div>
           ))}

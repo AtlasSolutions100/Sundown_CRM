@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { Link, useParams } from 'wouter';
-import { ArrowLeft, MessageSquare, Mail, Phone, MapPin, Plus, Send, Droplets, ChevronDown, ChevronRight } from 'lucide-react';
+import { ArrowLeft, MessageSquare, Mail, Phone, MapPin, Plus, Send, ChevronDown, ChevronRight } from 'lucide-react';
 import { useStore } from '@/data/store';
 import { Button, Card, CardHeader, CardTitle, CardDescription, CardContent, Badge, Input, Select, Textarea, Field, Dialog, Tabs, Segmented, Progress, MilestoneBar, Table, THead, TBody, TR, TH, TD, Stat, EmptyState, Pipeline, useToast, type Tone } from '@/components/ui';
 import { useLookups, JobStatusBadge, TicketStageBadge, ticketPipeline, InvoiceStatusBadge, DivisionBadge, SourceIcon, CrewChip, StatePill } from '@/components/shared';
@@ -53,10 +53,10 @@ export default function ClientDetail() {
       <div className="mb-6 flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
         <div>
           <div className="flex flex-wrap items-center gap-2">
-            <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">{c.name}</h1>
-            <Badge tone="outline">{c.type === 'hoa' ? 'HOA' : c.type}</Badge>
-            <Badge tone={c.status === 'active' ? 'success' : c.status === 'lead' ? 'accent' : 'neutral'} dot>{c.status}</Badge>
-            {c.contractSince && <Badge tone="primary">{c.termYears}-yr term since {c.contractSince.slice(0, 4)}</Badge>}
+            <h1 className="text-[22px] font-semibold tracking-tight">{c.name}</h1>
+            <Badge tone="outline">{c.type === 'hoa' ? 'HOA' : c.type === 'commercial' ? 'Commercial' : 'Residential'}</Badge>
+            <Badge tone={c.status === 'active' ? 'success' : c.status === 'lead' ? 'accent' : 'neutral'} dot>{c.status === 'active' ? 'Active' : c.status === 'lead' ? 'Lead' : 'Former'}</Badge>
+            {c.contractSince && <Badge tone="outline">{c.termYears}-yr term since {c.contractSince.slice(0, 4)}</Badge>}
           </div>
           <div className="mt-2 grid gap-x-6 gap-y-1 text-sm text-muted-foreground sm:grid-cols-2">
             <span>{c.contactName}</span>
@@ -79,9 +79,9 @@ export default function ClientDetail() {
       </div>
 
       {composer && (
-        <Card className="mb-6 border-primary/30">
+        <Card className="mb-6">
           <CardContent className="flex flex-col gap-2 p-4 sm:flex-row">
-            <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground sm:w-28 sm:pt-2">
+            <div className="text-xs font-medium text-muted-foreground sm:w-28 sm:pt-2">
               {composer === 'text' ? `Text ${c.phone}` : `Email ${c.email}`}
             </div>
             <Textarea value={composeBody} onChange={(e) => setComposeBody(e.target.value)} className="min-h-[60px] flex-1" placeholder="Type your message…" />
@@ -106,7 +106,7 @@ export default function ClientDetail() {
       <div className="mb-6 grid grid-cols-2 gap-3 md:grid-cols-4">
         <Stat label="Balance" value={money(balance)} tone={balance > 0 ? 'warning' : 'default'} sub={balance > 0 ? `${invoices.filter((i) => i.status === 'overdue').length} overdue` : 'Paid up'} />
         <Stat label="2026 completion" value={totalCount ? `${doneCount} / ${totalCount}` : '—'} sub={behindCount ? `${behindCount} behind` : 'On track'} tone={behindCount ? 'danger' : 'default'} />
-        <Stat label="YTD margin" value={margin ? pct(margin.margin) : '—'} sub={margin ? `${money(margin.profit, { cents: false })} on ${money(margin.revenue, { cents: false })}` : 'No completed work'} tone={margin && margin.margin < 0.15 ? 'danger' : margin && margin.margin >= 0.3 ? 'success' : 'default'} />
+        <Stat label="YTD margin" value={margin ? pct(margin.margin) : '—'} sub={margin ? `${money(margin.profit, { cents: false })} on ${money(margin.revenue, { cents: false })}` : 'No completed work'} tone={margin && margin.margin < 0.15 ? 'danger' : 'default'} />
         <Stat label="Realized $/hr" value={margin ? money(margin.realizedHourly, { cents: false }) : '—'} sub={margin ? `${margin.laborHours.toFixed(0)} labor hrs` : undefined} />
       </div>
 
@@ -193,7 +193,7 @@ export default function ClientDetail() {
                 </div>
               ))}
               {c.termYears === 1 && margin && margin.margin < 0.15 && (
-                <div className="rounded-md border border-destructive/40 bg-destructive/10 p-3 text-xs text-destructive">Margin is under 15%. Find out what happened before offering a multi-year term.</div>
+                <div className="rounded-md bg-destructive/10 p-3 text-xs text-destructive">Margin is under 15%. Find out what happened before offering a multi-year term.</div>
               )}
             </CardContent>
           </Card>
@@ -232,9 +232,9 @@ export default function ClientDetail() {
                           const t = data.backflowTests.filter((x) => x.deviceId === d.id).sort((a, b) => b.date.localeCompare(a.date))[0];
                           return (
                             <TR key={d.id}>
-                              <TD className="font-medium"><span className="inline-flex items-center gap-1.5"><Droplets className="size-3.5 text-info" /> {d.make} {d.model} {d.size}</span></TD>
+                              <TD className="font-medium">{d.make} {d.model} {d.size}</TD>
                               <TD><Badge tone="info">{d.type}</Badge></TD>
-                              <TD className="font-mono text-xs">{d.serial}</TD>
+                              <TD className="font-mono text-[12.5px]">{d.serial}</TD>
                               <TD className="text-muted-foreground">{d.location}</TD>
                               <TD className="text-xs">{L.purveyor(d.purveyorId)?.name}</TD>
                               <TD>{t ? <span className="inline-flex items-center gap-2"><Badge tone={t.result === 'pass' ? 'success' : 'danger'}>{t.result.toUpperCase()}</Badge><span className="text-xs text-muted-foreground">{fmtDate(t.date)}</span></span> : <Badge tone="warning">Not tested</Badge>}</TD>
@@ -252,17 +252,17 @@ export default function ClientDetail() {
       )}
 
       {tab === 'requests' && (
-        <div className="space-y-3">
-          {tickets.length === 0 && <EmptyState title="No service requests" />}
+        <Card>
+          {tickets.length === 0 && <div className="p-5"><EmptyState title="No service requests" /></div>}
+          <div className="divide-y divide-border/70">
           {tickets.map((t) => (
-            <Card key={t.id}>
-              <CardContent className="flex flex-col gap-3 p-4 lg:flex-row lg:items-center lg:justify-between">
+              <div key={t.id} className="flex flex-col gap-3 px-5 py-3.5 lg:flex-row lg:items-center lg:justify-between">
                 <div className="flex items-start gap-3">
                   <SourceIcon source={t.source} />
                   <div>
                     <div className="flex flex-wrap items-center gap-2">
                       <span className="text-xs text-muted-foreground">#{t.number}</span>
-                      <span className="font-semibold">{t.title}</span>
+                      <span className="font-medium">{t.title}</span>
                       <TicketStageBadge stage={t.stage} />
                       <DivisionBadge division={t.division} />
                     </div>
@@ -270,10 +270,10 @@ export default function ClientDetail() {
                   </div>
                 </div>
                 <Pipeline steps={ticketPipeline(t, data)} />
-              </CardContent>
-            </Card>
+              </div>
           ))}
-        </div>
+          </div>
+        </Card>
       )}
 
       {tab === 'jobs' && (
@@ -291,7 +291,7 @@ export default function ClientDetail() {
                     <TD>{j.scheduledDate ? fmtDate(j.scheduledDate) : <span className="text-xs text-muted-foreground">{fmtDate(j.windowStart)} – {fmtDate(j.windowEnd)}</span>}</TD>
                     <TD><CrewChip crewId={j.crewId} /></TD>
                     <TD><JobStatusBadge status={j.status} /></TD>
-                    <TD className="text-right tabular">{money(j.price)}</TD>
+                    <TD className="text-right num">{money(j.price)}</TD>
                   </TR>
                 ))}
               </TBody>
@@ -310,10 +310,10 @@ export default function ClientDetail() {
               <TBody>
                 {invoices.map((i) => (
                   <TR key={i.id}>
-                    <TD className="font-medium tabular">{i.number}</TD>
+                    <TD className="font-medium num">{i.number}</TD>
                     <TD className="text-sm">{i.sourceLabel}</TD>
                     <TD><InvoiceStatusBadge status={i.status} /></TD>
-                    <TD className="text-right tabular font-medium">{money(invoiceTotal(i))}</TD>
+                    <TD className="text-right num font-medium">{money(invoiceTotal(i))}</TD>
                     <TD>{fmtDate(i.dueDate)}</TD>
                     <TD>{i.paidAt ? fmtDate(i.paidAt) : '—'}</TD>
                   </TR>
@@ -359,18 +359,18 @@ function ContractCard({ p }: { p: NonNullable<ReturnType<typeof contractProgress
         </div>
         <div className="flex items-center gap-3">
           <Badge tone={tone} dot>{p.status === 'behind' ? `${p.worstDaysBehind} days behind` : p.status === 'due' ? 'Due now' : p.status === 'complete' ? 'Complete' : 'On track'}</Badge>
-          <span className="text-lg font-bold tabular">{p.done} / {p.total}</span>
+          <span className="num text-lg font-semibold">{p.done} / {p.total}</span>
         </div>
       </CardHeader>
       <CardContent>
         <Progress value={p.done / p.total} tone={tone} className="mb-4" />
-        <div className="space-y-2">
+        <div className="-mx-5 divide-y divide-border/70 border-t border-border/70">
           {p.byService.map((s) => {
             const lines = p.lines.filter((l) => l.serviceId === s.serviceId);
             const open = openSvc === s.serviceId;
             return (
-              <div key={s.serviceId} className="rounded-md border">
-                <button type="button" onClick={() => setOpenSvc(open ? null : s.serviceId)} className="flex w-full items-center gap-3 px-3 py-2 text-left hover:bg-muted/40">
+              <div key={s.serviceId}>
+                <button type="button" onClick={() => setOpenSvc(open ? null : s.serviceId)} className="flex w-full items-center gap-3 px-5 py-2.5 text-left hover:bg-muted/40">
                   {open ? <ChevronDown className="size-4 text-muted-foreground" /> : <ChevronRight className="size-4 text-muted-foreground" />}
                   <span className="w-44 shrink-0 text-sm font-medium">{s.name}</span>
                   <MilestoneBar className="flex-1" cells={lines.map((l) => ({ tone: stateTone(l.state), title: `${l.label} · ${fmtDate(l.windowStart)}–${fmtDate(l.windowEnd)} · ${l.state}` }))} />
@@ -389,14 +389,14 @@ function ContractCard({ p }: { p: NonNullable<ReturnType<typeof contractProgress
                           <TD className="text-xs text-muted-foreground">{fmtDate(l.windowStart)} – {fmtDate(l.windowEnd)}</TD>
                           <TD><StatePill state={l.state} /></TD>
                           <TD className="text-xs">{l.job?.scheduledDate ? `${fmtDate(l.job.scheduledDate)} · ${crew(l.job.crewId)?.name ?? ''}` : '—'}</TD>
-                          <TD className="text-right tabular">{money(l.price)}</TD>
+                          <TD className="text-right num">{money(l.price)}</TD>
                           <TD><Badge tone={invTone(l.invoiceState)}>{l.invoiceState === 'none' ? 'Not invoiced' : l.invoiceState}</Badge></TD>
                           <TD className="text-right">
                             {l.job && (l.state === 'behind' || l.state === 'due') && (
-                              <Button size="xs" variant="accent" onClick={() => { actions.scheduleJob(l.job!.id, new Date().toISOString().slice(0, 10) < l.windowStart ? l.windowStart : '2026-09-09', l.job!.division === 'maintenance' ? 'crew_maint' : 'crew_irr'); toast({ title: 'Scheduled for tomorrow', description: l.label }); }}>Schedule</Button>
+                              <Button size="xs" variant="outline" onClick={() => { actions.scheduleJob(l.job!.id, new Date().toISOString().slice(0, 10) < l.windowStart ? l.windowStart : '2026-09-09', l.job!.division === 'maintenance' ? 'crew_maint' : 'crew_irr'); toast({ title: 'Scheduled for tomorrow', description: l.label }); }}>Schedule</Button>
                             )}
                             {l.job && l.state === 'scheduled' && (
-                              <Button size="xs" variant="success" onClick={() => { actions.setJobStatus(l.job!.id, 'done'); toast({ title: 'Marked done', description: l.label }); }}>Mark done</Button>
+                              <Button size="xs" variant="outline" onClick={() => { actions.setJobStatus(l.job!.id, 'done'); toast({ title: 'Marked done', description: l.label }); }}>Mark done</Button>
                             )}
                           </TD>
                         </TR>
@@ -431,7 +431,7 @@ function ClientThread({ clientId }: { clientId: string }) {
             const t = m.ticketId ? L.ticket(m.ticketId) : undefined;
             return (
               <div key={m.id} className={cn('flex', out ? 'justify-end' : 'justify-start')}>
-                <div className={cn('max-w-[75%] rounded-2xl px-4 py-2.5 text-sm shadow-sm', out ? 'rounded-br-sm bg-primary text-primary-foreground' : 'rounded-bl-sm bg-muted')}>
+                <div className={cn('max-w-[75%] rounded-2xl px-4 py-2.5 text-sm', out ? 'rounded-br-sm bg-primary text-primary-foreground' : 'rounded-bl-sm bg-muted')}>
                   <div className={cn('mb-1 text-[11px]', out ? 'text-primary-foreground/70' : 'text-muted-foreground')}>{m.channel.replace('_', ' ')} · {fmtDate(m.at)} {fmtTime(m.at)}</div>
                   <p className="whitespace-pre-wrap">{m.body}</p>
                   {t && <div className={cn('mt-1.5 text-[11px] font-medium', out ? 'text-primary-foreground/80' : 'text-primary')}>Ticket #{t.number} · {t.title}</div>}

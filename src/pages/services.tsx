@@ -1,10 +1,10 @@
 import { useMemo, useState } from 'react';
-import { Layers, Plus, Pencil, Calculator, ChevronDown, ChevronRight, PackagePlus, Trash2 } from 'lucide-react';
+import { Plus, Pencil, Calculator, ChevronDown, ChevronRight, PackagePlus, Trash2 } from 'lucide-react';
 import { useStore } from '@/data/store';
 import { Button, Card, CardHeader, CardTitle, CardDescription, CardContent, Badge, Input, Select, Textarea, Field, Dialog, Tabs, Switch, PageHeader, useToast } from '@/components/ui';
-import { DivisionBadge } from '@/components/shared';
+import { DIVISION_LABEL } from '@/lib/metrics';
 import { priceService, pricingSummary } from '@/lib/pricing';
-import { money, cn, uid } from '@/lib/utils';
+import { money, uid } from '@/lib/utils';
 import type { Contract, ContractLine, Division, Job, Occurrence, Package, PricingUnit, Service } from '@/data/types';
 
 type Tab = 'services' | 'packages';
@@ -24,9 +24,9 @@ export default function Services() {
   return (
     <div>
       <PageHeader
-        eyebrow="Setup"
+       
         title="Services & packages"
-        subtitle="Equation pricing: a trip fee that tracks fuel and truck overhead, plus a rate per 1,000 sqft that tracks mower and labor cost. Change two numbers, every bid updates."
+        subtitle="Trip fee plus a rate per 1,000 sqft. Change two numbers and every bid updates."
         actions={
           tab === 'services' ? (
             <Button onClick={() => setEditSvc(blankService())}><Plus /> New service</Button>
@@ -40,9 +40,9 @@ export default function Services() {
 
       {tab === 'services' && (
         <>
-          <Card className="mb-4 border-accent/40 bg-accent/5">
+          <Card className="mb-4">
             <CardContent className="flex flex-wrap items-end gap-4 p-4">
-              <div className="flex items-center gap-2 text-sm font-semibold"><Calculator className="size-4 text-accent" /> Live price calculator</div>
+              <div className="flex items-center gap-2 text-sm font-medium"><Calculator className="size-4 text-muted-foreground" /> Live price calculator</div>
               <Field label="Turf sqft"><Input type="number" className="w-28" value={calc.turfSqft} onChange={(e) => setCalc({ ...calc, turfSqft: Number(e.target.value) })} /></Field>
               <Field label="Bed sqft"><Input type="number" className="w-28" value={calc.bedSqft} onChange={(e) => setCalc({ ...calc, bedSqft: Number(e.target.value) })} /></Field>
               <Field label="Zones"><Input type="number" className="w-20" value={calc.zones} onChange={(e) => setCalc({ ...calc, zones: Number(e.target.value) })} /></Field>
@@ -65,19 +65,16 @@ export default function Services() {
                       </div>
                       <Button size="xs" variant="ghost" onClick={() => setEditSvc(s)}><Pencil /></Button>
                     </div>
-                    <div className="flex flex-wrap gap-1 pt-1">
-                      <DivisionBadge division={s.division} />
-                      <Badge tone={s.category === 'routine' ? 'primary' : 'accent'}>{s.category === 'routine' ? 'Routine' : 'Non-routine'}</Badge>
-                    </div>
+                    <div className="pt-0.5 text-[12.5px] text-muted-foreground">{DIVISION_LABEL[s.division]} · {s.category === 'routine' ? 'Routine' : 'Non-routine'}</div>
                     <CardDescription className="pt-1">{s.description}</CardDescription>
                   </CardHeader>
                   <CardContent className="mt-auto space-y-3">
-                    <div className="rounded-md border bg-muted/30 p-3">
-                      <div className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">Formula</div>
+                    <div className="rounded-lg bg-muted/50 p-3">
+                      <div className="text-[11.5px] font-medium text-muted-foreground">Formula</div>
                       <div className="text-sm font-medium">{pricingSummary(s.pricing) || 'Bid per project'}</div>
                       <div className="mt-2 flex items-baseline justify-between">
                         <span className="text-xs text-muted-foreground">For the calculator property</span>
-                        <span className="text-xl font-bold tabular text-primary">{s.pricing.unit === 'flat' && !s.pricing.flat ? 'Bid' : money(price)}</span>
+                        <span className="num text-lg font-semibold">{s.pricing.unit === 'flat' && !s.pricing.flat ? 'Bid' : money(price)}</span>
                       </div>
                     </div>
                     <div className="flex items-center justify-between text-xs text-muted-foreground">
@@ -85,14 +82,14 @@ export default function Services() {
                       <span>{s.estMinutesFlat ? `~${s.estMinutesFlat} min` : s.estMinutesPer1000Sqft ? `~${s.estMinutesPer1000Sqft} min / 1k sqft` : ''}</span>
                     </div>
                     {s.occurrences.length > 0 && (
-                      <button type="button" onClick={() => setExpanded(open ? null : s.id)} className="flex w-full items-center gap-1 text-xs font-medium text-primary hover:underline">
+                      <button type="button" onClick={() => setExpanded(open ? null : s.id)} className="flex w-full items-center gap-1 text-xs font-medium text-muted-foreground hover:text-foreground">
                         {open ? <ChevronDown className="size-3.5" /> : <ChevronRight className="size-3.5" />} {open ? 'Hide' : 'Show'} schedule windows
                       </button>
                     )}
                     {open && (
-                      <div className="max-h-40 overflow-y-auto rounded-md border text-xs scrollbar-thin">
+                      <div className="max-h-40 divide-y divide-border/70 overflow-y-auto text-xs scrollbar-thin">
                         {s.occurrences.map((o, i) => (
-                          <div key={i} className="flex justify-between border-b px-2 py-1 last:border-0">
+                          <div key={i} className="flex justify-between py-1">
                             <span>{o.label}</span>
                             <span className="text-muted-foreground tabular">{o.start} → {o.end}</span>
                           </div>
@@ -113,7 +110,7 @@ export default function Services() {
             <Card key={p.id}>
               <CardHeader>
                 <div className="flex items-start justify-between gap-2">
-                  <CardTitle className="flex items-center gap-2"><Layers className="size-4 text-primary" /> {p.name}</CardTitle>
+                  <CardTitle>{p.name}</CardTitle>
                   <Button size="xs" variant="ghost" onClick={() => setEditPkg(p)}><Pencil /></Button>
                 </div>
                 <CardDescription>{p.description}</CardDescription>
@@ -131,7 +128,7 @@ export default function Services() {
                     label="Auto-renews each season"
                     onChange={(v) => update((d) => { const x = d.packages.find((k) => k.id === p.id); if (x) x.autoRenew = v; })}
                   />
-                  <Button size="sm" variant="accent" onClick={() => setAssignPkg(p)}><PackagePlus /> Assign to property</Button>
+                  <Button size="sm" variant="outline" onClick={() => setAssignPkg(p)}><PackagePlus /> Assign to property</Button>
                 </div>
                 <p className="text-xs text-muted-foreground">Used by {data.contracts.filter((c) => c.packageId === p.id).length} contract{data.contracts.filter((c) => c.packageId === p.id).length === 1 ? '' : 's'}.</p>
               </CardContent>
@@ -185,7 +182,7 @@ export default function Services() {
             <Field label="Name"><Input value={editPkg.name} onChange={(e) => setEditPkg({ ...editPkg, name: e.target.value })} /></Field>
             <Field label="Description"><Textarea value={editPkg.description} onChange={(e) => setEditPkg({ ...editPkg, description: e.target.value })} className="min-h-[56px]" /></Field>
             <Field label="Services included">
-              <div className="grid gap-1 rounded-md border p-2 sm:grid-cols-2">
+              <div className="grid gap-1 rounded-lg bg-muted/50 p-2 sm:grid-cols-2">
                 {data.services.filter((s) => s.category === 'routine').map((s) => (
                   <label key={s.id} className="flex items-center gap-2 rounded px-1 py-1 text-sm hover:bg-muted/50">
                     <input type="checkbox" checked={editPkg.serviceIds.includes(s.id)} onChange={(e) => setEditPkg({ ...editPkg, serviceIds: e.target.checked ? [...editPkg.serviceIds, s.id] : editPkg.serviceIds.filter((x) => x !== s.id) })} />
@@ -244,10 +241,10 @@ function ServiceDialog({ svc, onClose, onSave }: { svc: Service; onClose: () => 
         <Field label="Description" className="sm:col-span-2"><Textarea value={s.description} onChange={(e) => setS({ ...s, description: e.target.value })} className="min-h-[56px]" /></Field>
       </div>
 
-      <div className="mt-4 rounded-lg border bg-muted/30 p-4">
+      <div className="mt-4 rounded-lg bg-muted/50 p-3">
         <div className="mb-3 flex items-center justify-between">
-          <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Pricing equation</div>
-          <div className="text-sm">Sample 10k turf / 3k beds / 10 zones: <span className="font-bold tabular text-primary">{money(sample)}</span></div>
+          <div className="text-xs font-medium text-muted-foreground">Pricing equation</div>
+          <div className="text-sm">Sample 10k turf / 3k beds / 10 zones: <span className="num font-semibold">{money(sample)}</span></div>
         </div>
         <div className="grid gap-3 sm:grid-cols-3">
           <Field label="Priced by">
@@ -272,13 +269,13 @@ function ServiceDialog({ svc, onClose, onSave }: { svc: Service; onClose: () => 
 
       <div className="mt-4">
         <div className="mb-2 flex items-center justify-between">
-          <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Season windows ({s.occurrences.length})</div>
+          <div className="text-xs font-medium text-muted-foreground">Season windows ({s.occurrences.length})</div>
           <Button size="xs" variant="outline" onClick={() => setS({ ...s, occurrences: [...s.occurrences, { label: `Visit ${s.occurrences.length + 1}`, start: '05-01', end: '05-31' }] })}><Plus /> Add window</Button>
         </div>
-        <div className="max-h-56 overflow-y-auto rounded-md border scrollbar-thin">
+        <div className="max-h-56 divide-y divide-border/70 overflow-y-auto rounded-lg bg-muted/50 scrollbar-thin">
           {s.occurrences.length === 0 && <p className="p-3 text-xs text-muted-foreground">No windows: this service is scheduled on request.</p>}
           {s.occurrences.map((o, i) => (
-            <div key={i} className="grid grid-cols-[1fr_100px_100px_32px] items-center gap-2 border-b px-2 py-1.5 last:border-0">
+            <div key={i} className="grid grid-cols-[1fr_100px_100px_32px] items-center gap-2 px-2 py-1.5">
               <Input value={o.label} onChange={(e) => setOcc(i, { label: e.target.value })} className="h-8" />
               <Input value={o.start} onChange={(e) => setOcc(i, { start: e.target.value })} className="h-8 font-mono text-xs" placeholder="MM-DD" />
               <Input value={o.end} onChange={(e) => setOcc(i, { end: e.target.value })} className="h-8 font-mono text-xs" placeholder="MM-DD" />
@@ -377,9 +374,9 @@ function AssignDialog({ pkg, onClose }: { pkg: Package; onClose: () => void }) {
             <option value={2027}>2027</option>
           </Select>
         </Field>
-        <div className={cn('rounded-md border p-3 text-sm', property ? 'bg-primary/5 border-primary/30' : 'bg-muted')}>
-          <div className="flex justify-between"><span>Line items</span><span className="font-semibold tabular">{preview.lines}</span></div>
-          <div className="flex justify-between"><span>Season value</span><span className="font-semibold tabular">{money(preview.total)}</span></div>
+        <div className="rounded-lg bg-muted/50 p-3 text-sm">
+          <div className="flex justify-between"><span>Line items</span><span className="num font-semibold">{preview.lines}</span></div>
+          <div className="flex justify-between"><span>Season value</span><span className="num font-semibold">{money(preview.total)}</span></div>
         </div>
       </div>
     </Dialog>

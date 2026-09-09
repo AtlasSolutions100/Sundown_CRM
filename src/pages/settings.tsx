@@ -26,12 +26,12 @@ export default function Settings() {
 
   return (
     <div>
-      <PageHeader eyebrow="Setup" title="Settings" subtitle="Company details, automation thresholds, field tracking and weather rules." />
+      <PageHeader title="Settings" subtitle="Company details, automation thresholds, field tracking and weather rules." />
 
       <div className="grid gap-4 lg:grid-cols-2">
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2"><Building2 className="size-4 text-primary" /> Company</CardTitle>
+            <CardTitle className="flex items-center gap-2"><Building2 className="size-4 text-muted-foreground" /> Company</CardTitle>
             <CardDescription>Appears on estimates, invoices and backflow reports.</CardDescription>
           </CardHeader>
           <CardContent className="grid gap-3 sm:grid-cols-2">
@@ -54,7 +54,7 @@ export default function Settings() {
 
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2"><CreditCard className="size-4 text-primary" /> Billing & automation</CardTitle>
+            <CardTitle className="flex items-center gap-2"><CreditCard className="size-4 text-muted-foreground" /> Billing & automation</CardTitle>
             <CardDescription>Human in the loop until you trust it, then hands-off.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -65,7 +65,7 @@ export default function Settings() {
               <Field label="Payment reminder after (days)"><Input type="number" value={billing.reminderAfterDays} onChange={(e) => setBilling({ ...billing, reminderAfterDays: Number(e.target.value) })} /></Field>
               <Field label="Escalate to top of dashboard after (days)"><Input type="number" value={billing.escalateAfterDays} onChange={(e) => setBilling({ ...billing, escalateAfterDays: Number(e.target.value) })} /></Field>
             </div>
-            <div className="space-y-3 rounded-md border bg-muted/30 p-3">
+            <div className="space-y-3 rounded-lg bg-muted/50 p-3">
               <Switch checked={s.invoiceAutoSend} onChange={(v) => save({ invoiceAutoSend: v }, 'Invoice automation')} label="Send auto-generated invoices without asking me" />
               <div className="flex items-center justify-between gap-3">
                 <Switch checked={s.quickBooksConnected} onChange={(v) => save({ quickBooksConnected: v }, 'QuickBooks')} label="QuickBooks Online" />
@@ -79,7 +79,7 @@ export default function Settings() {
 
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2"><MapPin className="size-4 text-primary" /> Field & tracking</CardTitle>
+            <CardTitle className="flex items-center gap-2"><MapPin className="size-4 text-muted-foreground" /> Field & tracking</CardTitle>
             <CardDescription>Geofence radius drives automatic time-on-property; the billable target drives your dashboard gauge.</CardDescription>
           </CardHeader>
           <CardContent className="grid gap-3 sm:grid-cols-2">
@@ -91,11 +91,11 @@ export default function Settings() {
 
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2"><Database className="size-4 text-primary" /> Demo data</CardTitle>
+            <CardTitle className="flex items-center gap-2"><Database className="size-4 text-muted-foreground" /> Demo data</CardTitle>
             <CardDescription>This prototype runs entirely in your browser.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
-            <div className="flex items-center justify-between rounded-md border p-3 text-sm">
+            <div className="flex items-center justify-between rounded-lg bg-muted/50 p-3 text-sm">
               <span className="text-muted-foreground">Demo "today"</span>
               <span className="font-medium">{fmtDateLong(data.today)}</span>
             </div>
@@ -133,10 +133,10 @@ export default function Settings() {
       <Card className="mt-4">
         <CardHeader className="flex-row flex-wrap items-center justify-between gap-2">
           <div>
-            <CardTitle className="flex items-center gap-2"><CloudSun className="size-4 text-primary" /> Weather rules</CardTitle>
+            <CardTitle className="flex items-center gap-2"><CloudSun className="size-4 text-muted-foreground" /> Weather rules</CardTitle>
             <CardDescription>Checked every morning at 5:00 against the forecast at each property. Rules prepare suggestions; you click to accept.</CardDescription>
           </div>
-          <Button onClick={() => setRule({ id: uid('wr'), name: '', condition: '', action: '', enabled: true, divisions: ['maintenance'] })}><Plus /> Add rule</Button>
+          <Button variant="outline" size="sm" onClick={() => setRule({ id: uid('wr'), name: '', condition: '', action: '', enabled: true, divisions: ['maintenance'] })}><Plus /> Add rule</Button>
         </CardHeader>
         <CardContent className="p-0">
           <Table>

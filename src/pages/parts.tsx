@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import { Package, Plus, RefreshCw, Percent, CalendarCheck, ShoppingCart } from 'lucide-react';
 import { useStore } from '@/data/store';
-import { Button, Card, CardContent, Badge, Input, Select, Field, Dialog, Table, THead, TBody, TR, TH, TD, Stat, PageHeader, EmptyState, useToast } from '@/components/ui';
+import { Button, Card, CardContent, Input, Select, Field, Dialog, Table, THead, TBody, TR, TH, TD, Stat, PageHeader, EmptyState, useToast } from '@/components/ui';
 import { partSellPrice, round2 } from '@/lib/pricing';
 import { money, fmtDateLong, sum, uid } from '@/lib/utils';
 import type { Part } from '@/data/types';
@@ -44,9 +44,9 @@ export default function Parts() {
   return (
     <div>
       <PageHeader
-        eyebrow="Setup"
+       
         title="Parts & pricing"
-        subtitle="SiteOne price list with your markup. Techs pick parts from the bucket count; work orders and invoices price themselves."
+        subtitle="SiteOne price list with your markup. Work orders and invoices price themselves."
         actions={
           <>
             <Button variant="outline" onClick={simulate}><RefreshCw /> Simulate SiteOne price update</Button>
@@ -59,7 +59,7 @@ export default function Parts() {
         <Stat label="Parts in catalog" value={data.parts.length} icon={<Package />} />
         <Stat label="Average markup" value={`${avgMarkup.toFixed(0)}%`} icon={<Percent />} />
         <Stat label="Last price check" value={lastCheck ? fmtDateLong(lastCheck) : '—'} icon={<CalendarCheck />} />
-        <Stat label="Parts billed this month" value={money(usedThisMonth)} tone="accent" icon={<ShoppingCart />} />
+        <Stat label="Parts billed this month" value={money(usedThisMonth)} icon={<ShoppingCart />} />
       </div>
 
       <Card className="mb-4">
@@ -111,19 +111,19 @@ export default function Parts() {
               <TBody>
                 {rows.map((p) => (
                   <TR key={p.id}>
-                    <TD className="font-mono text-xs">{p.sku}</TD>
+                    <TD className="font-mono text-[12.5px]">{p.sku}</TD>
                     <TD className="font-medium">{p.name}</TD>
-                    <TD><Badge tone="outline">{p.category}</Badge></TD>
+                    <TD className="text-muted-foreground">{p.category}</TD>
                     <TD className="text-sm text-muted-foreground">{p.supplier}</TD>
                     <TD className="text-sm text-muted-foreground">{p.unit}</TD>
                     <TD className="text-right">
-                      <Input type="number" step="0.01" value={p.cost} onChange={(e) => actions.updatePart(p.id, { cost: Number(e.target.value) })} className="ml-auto h-8 w-24 text-right tabular" />
+                      <Input type="number" step="0.01" value={p.cost} onChange={(e) => actions.updatePart(p.id, { cost: Number(e.target.value) })} className="ml-auto h-8 w-24 text-right num" />
                     </TD>
                     <TD className="text-right">
-                      <Input type="number" step="5" value={p.markupPct} onChange={(e) => actions.updatePart(p.id, { markupPct: Number(e.target.value) })} className="ml-auto h-8 w-20 text-right tabular" />
+                      <Input type="number" step="5" value={p.markupPct} onChange={(e) => actions.updatePart(p.id, { markupPct: Number(e.target.value) })} className="ml-auto h-8 w-20 text-right num" />
                     </TD>
-                    <TD className="text-right tabular font-semibold text-primary">{money(partSellPrice(p))}</TD>
-                    <TD className="text-right tabular text-muted-foreground">{usedYtd.get(p.id) ?? 0}</TD>
+                    <TD className="text-right num font-semibold">{money(partSellPrice(p))}</TD>
+                    <TD className="text-right num text-muted-foreground">{usedYtd.get(p.id) ?? 0}</TD>
                   </TR>
                 ))}
               </TBody>
@@ -183,10 +183,10 @@ export default function Parts() {
               {priceUpdate.map((u) => (
                 <TR key={u.part.id}>
                   <TD className="font-medium">{u.part.name}</TD>
-                  <TD className="text-right tabular text-muted-foreground">{money(u.oldCost)}</TD>
-                  <TD className="text-right tabular font-semibold">{money(u.newCost)} <span className="text-xs text-destructive">+{(((u.newCost - u.oldCost) / u.oldCost) * 100).toFixed(1)}%</span></TD>
-                  <TD className="text-right tabular text-muted-foreground">{money(partSellPrice({ cost: u.oldCost, markupPct: u.part.markupPct }))}</TD>
-                  <TD className="text-right tabular font-semibold text-primary">{money(partSellPrice({ cost: u.newCost, markupPct: u.part.markupPct }))}</TD>
+                  <TD className="text-right num text-muted-foreground">{money(u.oldCost)}</TD>
+                  <TD className="text-right num font-semibold">{money(u.newCost)} <span className="text-xs text-destructive">+{(((u.newCost - u.oldCost) / u.oldCost) * 100).toFixed(1)}%</span></TD>
+                  <TD className="text-right num text-muted-foreground">{money(partSellPrice({ cost: u.oldCost, markupPct: u.part.markupPct }))}</TD>
+                  <TD className="text-right num font-semibold">{money(partSellPrice({ cost: u.newCost, markupPct: u.part.markupPct }))}</TD>
                 </TR>
               ))}
             </TBody>
@@ -228,7 +228,7 @@ function AddPartDialog({ defaultMarkup, onClose, onSave }: { defaultMarkup: numb
           </Select>
         </Field>
         <Field label="Unit"><Input value={f.unit} onChange={(e) => set('unit', e.target.value)} placeholder="ea / ft" /></Field>
-        <div className="rounded-md border bg-muted/30 p-3 text-sm sm:col-span-2">Sells at <span className="font-semibold tabular text-primary">{money(partSellPrice({ cost: f.cost, markupPct: f.markupPct }))}</span></div>
+        <div className="rounded-lg bg-muted/50 p-3 text-sm sm:col-span-2">Sells at <span className="num font-semibold">{money(partSellPrice({ cost: f.cost, markupPct: f.markupPct }))}</span></div>
       </div>
     </Dialog>
   );

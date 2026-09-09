@@ -69,7 +69,7 @@ export default function CrewBackflow() {
   return (
     <div className="px-4 py-4">
       <div className="mb-3">
-        <h1 className="text-2xl font-bold tracking-tight">Backflow test</h1>
+        <h1 className="text-xl font-semibold tracking-tight">Backflow test</h1>
         <p className="text-sm text-muted-foreground">Around 20 minutes of handwriting per device, gone.</p>
       </div>
 
@@ -82,18 +82,18 @@ export default function CrewBackflow() {
       </Select>
 
       {property && (
-        <div className="mt-2 rounded-lg border bg-card p-3 text-sm">
-          <div className="font-semibold">{property.address}, {property.city}</div>
+        <div className="mt-2 rounded-lg bg-muted/50 p-3 text-sm">
+          <div className="font-medium">{property.address}, {property.city}</div>
           <div className="text-xs text-muted-foreground">{client?.name}</div>
           <div className="mt-1.5 flex items-center gap-1.5 text-xs">
-            <Droplets className="size-3.5 text-info" />
-            <span className="text-muted-foreground">Purveyor:</span> <span className="font-medium">{purveyor?.name ?? '—'}</span>
+            <Droplets className="size-3.5 text-muted-foreground" />
+            <span className="text-muted-foreground">Purveyor</span> <span className="font-medium">{purveyor?.name ?? '—'}</span>
           </div>
         </div>
       )}
 
       <div className="mt-4 mb-2 flex items-center justify-between">
-        <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">Devices ({devices.length})</h2>
+        <h2 className="text-sm font-medium text-muted-foreground">Devices ({devices.length})</h2>
         <span className="text-xs text-muted-foreground">{devices.filter((d) => !!testFor(d)).length} tested this year</span>
       </div>
 
@@ -101,16 +101,16 @@ export default function CrewBackflow() {
         {devices.map((d) => {
           const t = testFor(d);
           return (
-            <Card key={d.id} className={cn(t?.result === 'pass' && 'border-success/40', t?.result === 'fail' && 'border-destructive/40')}>
+            <Card key={d.id}>
               <CardContent className="p-0">
                 <button type="button" onClick={() => setDeviceId(d.id)} className="flex w-full items-start gap-3 p-4 text-left active:bg-muted/50">
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2">
-                      <span className="text-base font-semibold">{d.make} {d.model}</span>
-                      <Badge tone="primary">{d.type}</Badge>
+                      <span className="text-[15px] font-semibold">{d.make} {d.model}</span>
+                      <Badge tone="outline">{d.type}</Badge>
                       <span className="text-xs text-muted-foreground">{d.size}</span>
                     </div>
-                    <div className="mt-0.5 text-xs text-muted-foreground">S/N {d.serial} · {d.location}</div>
+                    <div className="mt-0.5 text-xs text-muted-foreground"><span className="font-mono text-[12px]">{d.serial}</span> · {d.location}</div>
                   </div>
                   <div className="shrink-0">
                     {t ? (
@@ -121,9 +121,9 @@ export default function CrewBackflow() {
                   </div>
                 </button>
                 {t && (
-                  <div className="flex items-center justify-between border-t px-4 py-2 text-xs">
+                  <div className="flex items-center justify-between border-t border-border/70 px-4 py-2 text-xs">
                     <span className="text-muted-foreground">Tested {fmtDateLong(t.date)}{t.sentToPurveyorAt ? ` · report sent ${fmtTime(t.sentToPurveyorAt)}` : ''}</span>
-                    <button type="button" onClick={() => setPreviewId(t.id)} className="inline-flex items-center gap-1 font-medium text-primary">
+                    <button type="button" onClick={() => setPreviewId(t.id)} className="inline-flex items-center gap-1 font-medium text-foreground underline-offset-2 hover:underline">
                       <FileText className="size-3.5" /> Preview report
                     </button>
                   </div>
@@ -135,14 +135,14 @@ export default function CrewBackflow() {
       </div>
 
       {allTested && (
-        <div className="sticky bottom-0 -mx-4 mt-4 border-t bg-card/95 px-4 pb-3 pt-3 backdrop-blur">
+        <div className="sticky bottom-0 -mx-4 mt-4 border-t border-border/70 bg-background/95 px-4 pb-3 pt-3 backdrop-blur">
           {unsent.length > 0 ? (
-            <Button variant="accent" className="h-12 w-full text-base" onClick={sendReports}>
+            <Button variant="primary" size="lg" className="w-full" onClick={sendReports}>
               <Send /> Send {unsent.length} report{unsent.length > 1 ? 's' : ''} to {purveyor?.name ?? 'purveyor'}
             </Button>
           ) : (
-            <div className="flex items-center justify-center gap-2 rounded-md border border-success/40 bg-success/5 py-3 text-sm font-medium text-success">
-              <CheckCircle2 className="size-4" /> Sent {sentAt ? fmtTime(sentAt) : ''} — one email to {purveyor?.name}
+            <div className="flex items-center justify-center gap-2 py-2 text-sm font-medium text-success">
+              <CheckCircle2 className="size-4" /> Sent {sentAt ? fmtTime(sentAt) : ''} · one email to {purveyor?.name}
             </div>
           )}
           <div className="mt-1 text-center text-[11px] text-muted-foreground">All devices at this property bundle into one email.</div>
@@ -185,20 +185,20 @@ function TestForm({ device, propertyName, testerId: initialTester, onBack, onSav
         <ChevronLeft className="size-4" /> Back to devices
       </button>
       <div className="mb-4">
-        <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{propertyName}</div>
-        <h1 className="text-xl font-bold">{device.make} {device.model} <Badge tone="primary" className="align-middle">{device.type}</Badge></h1>
-        <div className="text-xs text-muted-foreground">{device.size} · S/N {device.serial} · {device.location}</div>
+        <div className="text-xs font-medium text-muted-foreground">{propertyName}</div>
+        <h1 className="text-xl font-semibold">{device.make} {device.model} <Badge tone="outline" className="align-middle">{device.type}</Badge></h1>
+        <div className="text-xs text-muted-foreground">{device.size} · <span className="font-mono text-[12px]">{device.serial}</span> · {device.location}</div>
       </div>
 
-      <div className={cn('mb-4 flex items-center justify-center gap-2 rounded-lg py-4 text-2xl font-black tracking-wide text-white', result === 'pass' ? 'bg-success' : 'bg-destructive')}>
-        {result === 'pass' ? <CheckCircle2 className="size-7" /> : <XCircle className="size-7" />}
-        {result.toUpperCase()}
-        {override && <span className="ml-2 rounded bg-black/20 px-1.5 py-0.5 text-[10px] font-semibold uppercase">override</span>}
+      <div className={cn('mb-4 flex items-center justify-center gap-2 rounded-lg py-4 text-2xl font-semibold text-white', result === 'pass' ? 'bg-success' : 'bg-destructive')}>
+        {result === 'pass' ? <CheckCircle2 className="size-6" /> : <XCircle className="size-6" />}
+        {result === 'pass' ? 'Pass' : 'Fail'}
+        {override && <span className="ml-2 rounded bg-black/20 px-1.5 py-0.5 text-[11px] font-medium">Override</span>}
       </div>
 
       <Card>
         <CardContent className="space-y-4 p-4">
-          <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Readings</div>
+          <div className="text-xs font-medium text-muted-foreground">Readings</div>
           {device.type === 'PVB' && (
             <>
               {num('airInletOpenedPsid', 'Air inlet opened at (psid) — min 1.0')}
@@ -208,7 +208,7 @@ function TestForm({ device, propertyName, testerId: initialTester, onBack, onSav
           {device.type === 'RP' && (
             <>
               {num('cv1Psid', 'Check valve #1 (psid) — min 5.0')}
-              <div className="flex items-center justify-between rounded-md border p-3">
+              <div className="flex items-center justify-between rounded-lg bg-muted/50 p-3">
                 <span className="text-sm font-medium">Check valve #2 closed tight</span>
                 <Switch checked={!!r.cv2Tight} onChange={(v) => setR((x) => ({ ...x, cv2Tight: v }))} />
               </div>
@@ -233,7 +233,7 @@ function TestForm({ device, propertyName, testerId: initialTester, onBack, onSav
                 {licensed.map((m) => <option key={m.id} value={m.id}>{m.name} · {m.testerLicense}</option>)}
               </Select>
             ) : (
-              <div className="rounded-md border bg-muted/40 px-3 py-2 text-sm">{tester?.name} · {tester?.testerLicense}</div>
+              <div className="rounded-lg bg-muted/50 px-3 py-2 text-sm">{tester?.name} · <span className="font-mono text-[12.5px]">{tester?.testerLicense}</span></div>
             )}
           </Field>
           <div className="grid grid-cols-2 gap-3">
@@ -261,7 +261,7 @@ function TestForm({ device, propertyName, testerId: initialTester, onBack, onSav
           className="h-12 w-full text-base"
           onClick={() => onSave({ deviceId: device.id, date: data.today, testerId, gaugeSerial, gaugeCalDate, result, readings: r, repairs: repairs || undefined })}
         >
-          Save test — {result.toUpperCase()}
+          Save test · {result === 'pass' ? 'Pass' : 'Fail'}
         </Button>
       </div>
     </div>
@@ -272,9 +272,9 @@ function NumField({ label, value, onChange }: { label: string; value?: number; o
   const bump = (d: number) => onChange(Math.max(0, Math.round(((value ?? 0) + d) * 10) / 10));
   return (
     <div>
-      <div className="mb-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground">{label}</div>
+      <div className="mb-1 text-xs font-medium text-muted-foreground">{label}</div>
       <div className="flex items-center gap-2">
-        <button type="button" onClick={() => bump(-0.1)} className="flex size-11 shrink-0 items-center justify-center rounded-md border bg-card text-lg font-bold active:bg-muted">−</button>
+        <button type="button" onClick={() => bump(-0.1)} className="control-shadow flex size-11 shrink-0 items-center justify-center rounded-lg bg-card text-lg font-semibold active:bg-muted">−</button>
         <Input
           inputMode="decimal"
           type="number"
@@ -284,7 +284,7 @@ function NumField({ label, value, onChange }: { label: string; value?: number; o
           className="h-11 text-center text-lg font-semibold tabular"
           placeholder="0.0"
         />
-        <button type="button" onClick={() => bump(0.1)} className="flex size-11 shrink-0 items-center justify-center rounded-md bg-primary text-lg font-bold text-primary-foreground active:bg-primary/80">+</button>
+        <button type="button" onClick={() => bump(0.1)} className="flex size-11 shrink-0 items-center justify-center rounded-lg bg-primary text-lg font-semibold text-primary-foreground active:bg-primary/80">+</button>
       </div>
     </div>
   );
@@ -311,27 +311,27 @@ function ReportDialog({ testId, onClose }: { testId?: string; onClose: () => voi
     <Dialog open={!!t} onClose={onClose} title="Backflow Assembly Test Report" description={pv?.name} size="md">
       {t && d && p && (
         <div className="space-y-4 text-sm">
-          <div className="rounded-md border p-3">
-            <div className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">Submitted to</div>
+          <div className="rounded-lg bg-muted/50 p-3">
+            <div className="text-[11.5px] font-medium text-muted-foreground">Submitted to</div>
             <div className="font-semibold">{pv?.name}</div>
             <div className="text-xs text-muted-foreground">{pv?.email} · {pv?.phone}</div>
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <div className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">Service address</div>
+              <div className="text-[11.5px] font-medium text-muted-foreground">Service address</div>
               <div className="font-medium">{p.address}</div>
               <div className="text-xs text-muted-foreground">{p.city}, ID</div>
               <div className="text-xs text-muted-foreground">{c?.name}</div>
               {d.purveyorAccountNo && <div className="text-xs text-muted-foreground">Acct {d.purveyorAccountNo}</div>}
             </div>
             <div>
-              <div className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">Assembly</div>
+              <div className="text-[11.5px] font-medium text-muted-foreground">Assembly</div>
               <div className="font-medium">{d.make} {d.model} ({d.type})</div>
               <div className="text-xs text-muted-foreground">{d.size} · S/N {d.serial}</div>
               <div className="text-xs text-muted-foreground">{d.location} · {d.hazard}</div>
             </div>
           </div>
-          <div className="overflow-hidden rounded-md border">
+          <div className="hairline overflow-hidden rounded-lg">
             <table className="w-full text-sm">
               <tbody>
                 {rows.map(([k, v]) => (
@@ -350,12 +350,12 @@ function ReportDialog({ testId, onClose }: { testId?: string; onClose: () => voi
           {t.repairs && <div className="rounded-md bg-muted/50 p-3 text-xs"><span className="font-semibold">Repairs:</span> {t.repairs}</div>}
           <div className="grid grid-cols-2 gap-3 text-xs">
             <div>
-              <div className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">Tester</div>
+              <div className="text-[11.5px] font-medium text-muted-foreground">Tester</div>
               <div className="font-medium">{tester?.name}</div>
               <div className="text-muted-foreground">License {tester?.testerLicense}</div>
             </div>
             <div>
-              <div className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">Gauge</div>
+              <div className="text-[11.5px] font-medium text-muted-foreground">Gauge</div>
               <div className="font-medium">{t.gaugeSerial}</div>
               <div className="text-muted-foreground">Calibrated {fmtDateLong(t.gaugeCalDate)}</div>
             </div>

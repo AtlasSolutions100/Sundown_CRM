@@ -32,4 +32,8 @@ src/
   pages/            one file per screen; crew-*.tsx are the mobile screens
 ```
 
+## Design system
+
+Warm paper canvas with a same-tone sidebar, dark ink primary actions, and sunset orange reserved as the one signal colour (active nav, focus, one primary action per screen). Status colours are semantic only. Cards are `surface` (layered neutral shadow, no border) and lists inside them use dividers rather than nested cards. Fonts: Instrument Sans for UI, IBM Plex Mono for serials and IDs. Tokens live in `src/index.css`; components in `src/components/ui.tsx`.
+
 See `PROTOTYPE-BRIEF.md` for the transcript → feature mapping and the production plan.

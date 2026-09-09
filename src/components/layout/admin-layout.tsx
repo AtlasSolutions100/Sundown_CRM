@@ -2,7 +2,7 @@ import { useEffect, useState, type ReactNode } from 'react';
 import { Link, useLocation } from 'wouter';
 import {
   LayoutDashboard, ClipboardCheck, Ticket, CalendarRange, Droplets, Receipt, Users, FileText, Layers,
-  Package, Timer, BarChart3, Inbox, UserCog, Settings2, Menu, Sun, Wrench, RefreshCw, Smartphone,
+  Package, Timer, BarChart3, Inbox, UserCog, Settings2, Menu, Wrench, RefreshCw, Smartphone, ChevronsUpDown,
 } from 'lucide-react';
 import { useStore } from '@/data/store';
 import { allContractProgress } from '@/lib/metrics';
@@ -31,10 +31,10 @@ const NAV: { section: string; items: NavItem[] }[] = [
     section: 'Operate',
     items: [
       { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
-      { name: 'Completion Audit', href: '/contracts', icon: ClipboardCheck, badge: (c) => c.behind, tone: 'danger' },
-      { name: 'Service Requests', href: '/tickets', icon: Ticket, badge: (c) => c.openTickets },
-      { name: 'Schedule & Routes', href: '/schedule', icon: CalendarRange },
-      { name: 'Work Orders', href: '/work-orders', icon: Wrench },
+      { name: 'Completion audit', href: '/contracts', icon: ClipboardCheck, badge: (c) => c.behind, tone: 'danger' },
+      { name: 'Service requests', href: '/tickets', icon: Ticket, badge: (c) => c.openTickets },
+      { name: 'Schedule & routes', href: '/schedule', icon: CalendarRange },
+      { name: 'Work orders', href: '/work-orders', icon: Wrench },
       { name: 'Backflow', href: '/backflow', icon: Droplets },
       { name: 'Inbox', href: '/inbox', icon: Inbox, badge: (c) => c.unfiled + c.unread, tone: 'accent' },
     ],
@@ -44,23 +44,23 @@ const NAV: { section: string; items: NavItem[] }[] = [
     items: [
       { name: 'Invoices', href: '/invoices', icon: Receipt, badge: (c) => c.pendingInvoices, tone: 'accent' },
       { name: 'Estimates', href: '/estimates', icon: FileText },
-      { name: 'Job Costing', href: '/reports', icon: BarChart3 },
-      { name: 'Time & Geofence', href: '/time', icon: Timer },
+      { name: 'Job costing', href: '/reports', icon: BarChart3 },
+      { name: 'Time & geofence', href: '/time', icon: Timer },
     ],
   },
   {
     section: 'Setup',
     items: [
       { name: 'Clients', href: '/clients', icon: Users },
-      { name: 'Services & Packages', href: '/services', icon: Layers },
-      { name: 'Parts & Pricing', href: '/parts', icon: Package },
+      { name: 'Services & packages', href: '/services', icon: Layers },
+      { name: 'Parts & pricing', href: '/parts', icon: Package },
       { name: 'Team', href: '/team', icon: UserCog },
       { name: 'Settings', href: '/settings', icon: Settings2 },
     ],
   },
 ];
 
-const ROLE_LABEL: Record<Role, string> = { owner: 'Owner', ops: 'Ops Manager', foreman: 'Foreman', crew: 'Crew' };
+const ROLE_LABEL: Record<Role, string> = { owner: 'Owner', ops: 'Ops manager', foreman: 'Foreman', crew: 'Crew' };
 
 export function AdminLayout({ children }: { children: ReactNode }) {
   const [location, navigate] = useLocation();
@@ -82,18 +82,20 @@ export function AdminLayout({ children }: { children: ReactNode }) {
 
   const sidebar = (
     <div className="flex h-full flex-col">
-      <div className="flex items-center gap-3 px-5 py-5">
+      {/* Workspace */}
+      <div className="flex items-center gap-2.5 px-4 pt-4 pb-3">
         <Logo />
-        <div className="leading-tight">
-          <div className="text-base font-bold tracking-tight">Sundown CRM</div>
-          <div className="text-[11px] text-sidebar-foreground/60">Lawn · Irrigation · Backflow</div>
+        <div className="min-w-0 leading-tight">
+          <div className="truncate text-[13.5px] font-semibold text-foreground">Sundown Lawn & Irrigation</div>
+          <div className="text-[11.5px] text-muted-foreground">Post Falls, ID</div>
         </div>
       </div>
-      <nav className="flex-1 space-y-4 overflow-y-auto px-3 pb-4 scrollbar-thin">
+
+      <nav className="flex-1 space-y-5 overflow-y-auto px-3 py-2 scrollbar-thin">
         {NAV.map((group) => (
           <div key={group.section}>
-            <div className="px-3 pb-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-sidebar-foreground/45">{group.section}</div>
-            <div className="flex flex-col gap-0.5">
+            <div className="px-2 pb-1 text-[11.5px] font-medium text-muted-foreground/80">{group.section}</div>
+            <div className="flex flex-col gap-px">
               {group.items.map((item) => {
                 const active = location === item.href || location.startsWith(item.href + '/');
                 const n = item.badge?.(ctx);
@@ -103,14 +105,14 @@ export function AdminLayout({ children }: { children: ReactNode }) {
                     href={item.href}
                     onClick={() => setOpen(false)}
                     className={cn(
-                      'flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors',
-                      active ? 'bg-sidebar-primary text-sidebar-primary-foreground shadow-sm' : 'text-sidebar-foreground/85 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground',
+                      'group flex h-8 items-center gap-2.5 rounded-md px-2 text-[13.5px] transition-colors',
+                      active ? 'bg-foreground/[0.07] font-medium text-foreground' : 'text-sidebar-foreground hover:bg-foreground/[0.04] hover:text-foreground',
                     )}
                   >
-                    <item.icon className={cn('size-4.5', active ? 'text-sidebar-primary-foreground' : 'text-sidebar-foreground/60')} />
-                    <span className="flex-1">{item.name}</span>
+                    <item.icon className={cn('size-4', active ? 'text-accent' : 'text-muted-foreground group-hover:text-foreground/70')} strokeWidth={active ? 2.2 : 1.9} />
+                    <span className="flex-1 truncate">{item.name}</span>
                     {!!n && (
-                      <span className={cn('rounded-full px-1.5 py-0.5 text-[10px] font-bold tabular leading-none', active ? 'bg-black/15 text-sidebar-primary-foreground' : item.tone === 'danger' ? 'bg-destructive text-white' : 'bg-accent text-accent-foreground')}>{n}</span>
+                      <span className={cn('num min-w-5 rounded px-1 py-0.5 text-center text-[11px] leading-none', item.tone === 'danger' ? 'bg-destructive/10 font-semibold text-destructive' : 'text-muted-foreground')}>{n}</span>
                     )}
                   </Link>
                 );
@@ -119,34 +121,37 @@ export function AdminLayout({ children }: { children: ReactNode }) {
           </div>
         ))}
       </nav>
+
+      {/* Persona */}
       <div className="border-t border-sidebar-border p-3">
-        <div className="mb-2 flex items-center gap-2 rounded-md bg-sidebar-accent/60 p-2">
-          <Avatar name={currentUser.name} hue="24 90% 59%" />
+        <label className="relative flex cursor-pointer items-center gap-2.5 rounded-lg px-2 py-2 hover:bg-foreground/[0.04]">
+          <Avatar name={currentUser.name} hue="24 86% 56%" />
           <div className="min-w-0 flex-1 leading-tight">
-            <div className="truncate text-sm font-semibold">{currentUser.name}</div>
-            <div className="text-[11px] text-sidebar-foreground/60">{ROLE_LABEL[role]}</div>
+            <div className="truncate text-[13px] font-medium text-foreground">{currentUser.name}</div>
+            <div className="text-[11.5px] text-muted-foreground">{ROLE_LABEL[role]} · preview as</div>
           </div>
-        </div>
-        <label className="block text-[10px] font-semibold uppercase tracking-wider text-sidebar-foreground/45">Preview as</label>
-        <select
-          value={role}
-          onChange={(e) => {
-            const r = e.target.value as Role;
-            setRole(r);
-            if (r === 'crew') navigate('/my/day');
-          }}
-          className="mt-1 h-8 w-full rounded-md border border-sidebar-border bg-sidebar-accent px-2 text-xs text-sidebar-foreground focus:outline-none"
-        >
-          <option value="owner">Owner (David)</option>
-          <option value="ops">Ops Manager</option>
-          <option value="foreman">Foreman</option>
-          <option value="crew">Crew (mobile view)</option>
-        </select>
-        <div className="mt-2 flex gap-1">
-          <button type="button" onClick={() => navigate('/my/day')} className="flex flex-1 items-center justify-center gap-1 rounded-md px-2 py-1.5 text-[11px] text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-foreground">
-            <Smartphone className="size-3.5" /> Crew app
+          <ChevronsUpDown className="size-3.5 text-muted-foreground" />
+          <select
+            aria-label="Preview as role"
+            value={role}
+            onChange={(e) => {
+              const r = e.target.value as Role;
+              setRole(r);
+              if (r === 'crew') navigate('/my/day');
+            }}
+            className="absolute inset-0 cursor-pointer opacity-0"
+          >
+            <option value="owner">Owner (David)</option>
+            <option value="ops">Ops manager</option>
+            <option value="foreman">Foreman</option>
+            <option value="crew">Crew (field app)</option>
+          </select>
+        </label>
+        <div className="mt-1 flex gap-1">
+          <button type="button" onClick={() => navigate('/my/day')} className="flex flex-1 items-center justify-center gap-1.5 rounded-md px-2 py-1.5 text-[12px] text-muted-foreground hover:bg-foreground/[0.04] hover:text-foreground">
+            <Smartphone className="size-3.5" /> Field app
           </button>
-          <button type="button" onClick={() => { if (confirm('Reset all demo data to the original seed?')) reset(); }} className="flex flex-1 items-center justify-center gap-1 rounded-md px-2 py-1.5 text-[11px] text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-foreground">
+          <button type="button" onClick={() => { if (confirm('Reset all demo data to the original seed?')) reset(); }} className="flex flex-1 items-center justify-center gap-1.5 rounded-md px-2 py-1.5 text-[12px] text-muted-foreground hover:bg-foreground/[0.04] hover:text-foreground">
             <RefreshCw className="size-3.5" /> Reset demo
           </button>
         </div>
@@ -156,41 +161,43 @@ export function AdminLayout({ children }: { children: ReactNode }) {
 
   return (
     <div className="flex min-h-[100dvh] bg-background">
-      {/* Desktop sidebar */}
-      <aside className="sticky top-0 hidden h-[100dvh] w-64 shrink-0 border-r border-sidebar-border bg-sidebar text-sidebar-foreground md:block">{sidebar}</aside>
+      <aside className="sticky top-0 hidden h-[100dvh] w-60 shrink-0 border-r border-sidebar-border bg-sidebar md:block">{sidebar}</aside>
 
-      {/* Mobile drawer */}
       {open && (
         <div className="fixed inset-0 z-40 md:hidden">
-          <div className="absolute inset-0 bg-black/40" onClick={() => setOpen(false)} />
-          <aside className="absolute inset-y-0 left-0 w-72 bg-sidebar text-sidebar-foreground shadow-2xl">{sidebar}</aside>
+          <div className="absolute inset-0 bg-[hsl(202_34%_10%/0.4)]" onClick={() => setOpen(false)} />
+          <aside className="absolute inset-y-0 left-0 w-72 bg-sidebar shadow-2xl">{sidebar}</aside>
         </div>
       )}
 
       <div className="flex min-w-0 flex-1 flex-col">
-        {/* Mobile top bar */}
-        <header className="sticky top-0 z-30 flex items-center justify-between border-b bg-sidebar px-4 py-3 text-sidebar-foreground md:hidden">
+        <header className="sticky top-0 z-30 flex items-center justify-between border-b bg-sidebar px-4 py-2.5 md:hidden">
           <div className="flex items-center gap-2">
             <Logo small />
-            <span className="font-bold">Sundown CRM</span>
+            <span className="text-[13.5px] font-semibold">Sundown</span>
           </div>
-          <button type="button" onClick={() => setOpen(true)} className="rounded-md p-1.5 hover:bg-sidebar-accent" aria-label="Menu">
+          <button type="button" onClick={() => setOpen(true)} className="rounded-md p-1.5 hover:bg-foreground/[0.05]" aria-label="Menu">
             <Menu className="size-5" />
           </button>
         </header>
         <main className="flex-1">
-          <div className="mx-auto w-full max-w-[1400px] px-4 py-6 sm:px-6 lg:px-8">{children}</div>
+          <div className="mx-auto w-full max-w-[1320px] px-4 py-5 sm:px-6 lg:px-8">{children}</div>
         </main>
       </div>
     </div>
   );
 }
 
+/** Brand mark: a setting sun over turf. The only place the two brand colours meet at full strength. */
 export function Logo({ small }: { small?: boolean }) {
+  const s = small ? 26 : 30;
   return (
-    <span className={cn('relative flex shrink-0 items-center justify-center overflow-hidden rounded-lg bg-[hsl(24_90%_59%)] shadow-inner', small ? 'size-8' : 'size-10')}>
-      <Sun className={cn('text-white', small ? 'size-5' : 'size-6')} strokeWidth={2.4} />
-      <span className="absolute inset-x-0 bottom-0 h-[38%] bg-[hsl(140_40%_34%)]" />
-    </span>
+    <svg width={s} height={s} viewBox="0 0 32 32" aria-hidden className="shrink-0">
+      <rect width="32" height="32" rx="8" fill="hsl(202 34% 13%)" />
+      <circle cx="16" cy="17" r="7.5" fill="hsl(24 86% 56%)" />
+      <rect x="4" y="18.5" width="24" height="9.5" fill="hsl(202 34% 13%)" />
+      <path d="M5 20.5h22" stroke="hsl(145 42% 40%)" strokeWidth="2.2" strokeLinecap="round" />
+      <path d="M7.5 24h17" stroke="hsl(145 42% 33%)" strokeWidth="2.2" strokeLinecap="round" />
+    </svg>
   );
 }

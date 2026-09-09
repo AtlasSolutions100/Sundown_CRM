@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react';
 import { useLocation } from 'wouter';
 import { Minus, Plus, Search, CheckCircle2, Wrench } from 'lucide-react';
 import { useStore } from '@/data/store';
-import { Button, Card, CardContent, Input, Select, Textarea, Field, Avatar, useToast } from '@/components/ui';
+import { Button, Card, CardContent, Input, Select, Textarea, Field, useToast } from '@/components/ui';
 import { money, cn, sum, hhmmToMinutes, fmtTime } from '@/lib/utils';
 import { partSellPrice, round2 } from '@/lib/pricing';
 
@@ -93,20 +93,20 @@ export default function CrewWorkOrder() {
   if (result) {
     return (
       <div className="space-y-4 px-4 py-4">
-        <Card className="border-success/40 bg-success/5">
+        <Card>
           <CardContent className="p-5 text-center">
-            <CheckCircle2 className="mx-auto size-12 text-success" />
-            <h1 className="mt-3 text-xl font-bold">Work order #{result.number} submitted</h1>
-            <p className="mt-1 text-sm text-muted-foreground">Invoice drafted for David's approval — <span className="font-semibold text-foreground">{money(result.total)}</span></p>
-            <div className="mt-4 rounded-lg border bg-card p-3 text-left text-sm">
+            <CheckCircle2 className="mx-auto size-10 text-success" />
+            <h1 className="mt-3 text-xl font-semibold">Work order #{result.number} submitted</h1>
+            <p className="mt-1 text-sm text-muted-foreground">Invoice drafted for David's approval: <span className="num font-semibold text-foreground">{money(result.total)}</span></p>
+            <div className="mt-4 rounded-lg bg-muted/50 p-3 text-left text-sm">
               <div className="font-semibold">{property?.name}</div>
-              <div className="text-xs text-muted-foreground">{client?.name} · {timeIn}–{timeOut} · {hours} h · {selected.length} part lines</div>
+              <div className="text-xs text-muted-foreground">{client?.name} · <span className="font-mono text-[12px]">{timeIn}–{timeOut}</span> · {hours} h · {selected.length} part lines</div>
             </div>
           </CardContent>
         </Card>
         <div className="grid grid-cols-2 gap-2">
-          <Button variant="outline" className="h-12" onClick={reset}>Another</Button>
-          <Button variant="primary" className="h-12" onClick={() => navigate('/my/day')}>My Day</Button>
+          <Button variant="outline" size="lg" onClick={reset}>Another</Button>
+          <Button variant="primary" size="lg" onClick={() => navigate('/my/day')}>My day</Button>
         </div>
       </div>
     );
@@ -114,16 +114,11 @@ export default function CrewWorkOrder() {
 
   return (
     <div className="px-4 py-4">
-      <div className="mb-4 flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">Work order</h1>
-          <p className="text-sm text-muted-foreground">Property, time, parts from the bucket. Priced automatically.</p>
-        </div>
-        <div className="flex items-center gap-2">
-          <Avatar name={currentUser.name} hue="24 90% 59%" />
-        </div>
+      <div className="mb-4">
+        <h1 className="text-xl font-semibold tracking-tight">Work order</h1>
+        <p className="text-sm text-muted-foreground">Property, time, parts from the bucket. Priced automatically.</p>
+        <div className="mt-1 text-xs text-muted-foreground">Tech <span className="font-medium text-foreground">{currentUser.name}</span> · {data.today}</div>
       </div>
-      <div className="mb-4 text-xs text-muted-foreground">Tech: <span className="font-medium text-foreground">{currentUser.name}</span> · {data.today}</div>
 
       <div className="space-y-4">
         {/* 1 Property */}
@@ -152,7 +147,7 @@ export default function CrewWorkOrder() {
           </div>
           <div className="mt-2 flex items-center justify-between text-sm">
             <span className="text-muted-foreground">{activeVisit ? `Geofence arrival ${fmtTime(activeVisit.arrive)}` : 'Labor'}</span>
-            <span className="font-semibold tabular">{hours} h × {money(LABOR_RATE)} = {money(laborTotal)}</span>
+            <span className="num font-medium">{hours} h × {money(LABOR_RATE)} = {money(laborTotal)}</span>
           </div>
         </Section>
 
@@ -165,22 +160,22 @@ export default function CrewWorkOrder() {
           <div className="mt-3 max-h-[380px] space-y-3 overflow-y-auto pr-1 scrollbar-thin">
             {partsByCat.map(([cat, list]) => (
               <div key={cat}>
-                <div className="mb-1 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">{cat}</div>
-                <div className="divide-y rounded-lg border bg-card">
+                <div className="mb-1 text-[11px] font-medium text-muted-foreground">{cat}</div>
+                <div className="divide-y divide-border/70">
                   {list.map((p) => {
                     const n = qty[p.id] ?? 0;
                     return (
-                      <div key={p.id} className={cn('flex items-center gap-2 px-3 py-2', n > 0 && 'bg-accent/5')}>
+                      <div key={p.id} className={cn('flex items-center gap-2 py-2', n > 0 && '-mx-2 rounded-lg bg-muted/50 px-2')}>
                         <div className="min-w-0 flex-1">
                           <div className="truncate text-sm font-medium">{p.name}</div>
-                          <div className="text-xs text-muted-foreground">{money(partSellPrice(p))} / {p.unit}</div>
+                          <div className="num text-xs text-muted-foreground">{money(partSellPrice(p))} / {p.unit}</div>
                         </div>
                         <div className="flex items-center gap-1">
-                          <button type="button" onClick={() => step(p.id, -1)} className="flex size-10 items-center justify-center rounded-md border bg-card text-foreground active:bg-muted disabled:opacity-40" disabled={n === 0} aria-label="Less">
+                          <button type="button" onClick={() => step(p.id, -1)} className="control-shadow flex size-10 items-center justify-center rounded-lg bg-card text-foreground active:bg-muted disabled:opacity-40" disabled={n === 0} aria-label="Less">
                             <Minus className="size-4" />
                           </button>
-                          <span className={cn('w-8 text-center text-base font-bold tabular', n === 0 && 'text-muted-foreground')}>{n}</span>
-                          <button type="button" onClick={() => step(p.id, 1)} className="flex size-10 items-center justify-center rounded-md bg-primary text-primary-foreground active:bg-primary/80" aria-label="More">
+                          <span className={cn('num w-8 text-center text-base font-semibold', n === 0 && 'text-muted-foreground')}>{n}</span>
+                          <button type="button" onClick={() => step(p.id, 1)} className="flex size-10 items-center justify-center rounded-lg bg-primary text-primary-foreground active:bg-primary/80" aria-label="More">
                             <Plus className="size-4" />
                           </button>
                         </div>
@@ -201,12 +196,12 @@ export default function CrewWorkOrder() {
       </div>
 
       {/* Sticky total + submit */}
-      <div className="sticky bottom-0 -mx-4 mt-4 border-t bg-card/95 px-4 pb-3 pt-3 backdrop-blur">
+      <div className="sticky bottom-0 -mx-4 mt-4 border-t border-border/70 bg-background/95 px-4 pb-3 pt-3 backdrop-blur">
         <div className="mb-2 flex items-center justify-between text-xs text-muted-foreground">
-          <span>Trip {money(TRIP_FEE)} · Labor {money(laborTotal)} · Parts {money(partsTotal)} ({selected.length})</span>
-          <span className="text-base font-bold text-foreground tabular">{money(total)}</span>
+          <span className="num">Trip {money(TRIP_FEE)} · Labor {money(laborTotal)} · Parts {money(partsTotal)} ({selected.length})</span>
+          <span className="num text-base font-semibold text-foreground">{money(total)}</span>
         </div>
-        <Button variant="accent" className="h-12 w-full text-base" disabled={!property || minutes <= 0} onClick={submit}>
+        <Button variant="primary" size="lg" className="w-full" disabled={!property || minutes <= 0} onClick={submit}>
           <Wrench /> Submit work order
         </Button>
       </div>
@@ -219,7 +214,7 @@ function Section({ n, title, children }: { n: number; title: string; children: R
     <Card>
       <CardContent className="p-4">
         <div className="mb-3 flex items-center gap-2">
-          <span className="flex size-6 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground">{n}</span>
+          <span className="num text-xs font-medium text-muted-foreground">{String(n).padStart(2, '0')}</span>
           <h2 className="text-sm font-semibold">{title}</h2>
         </div>
         {children}

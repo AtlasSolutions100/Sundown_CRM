@@ -55,7 +55,7 @@ export default function Dashboard() {
   return (
     <div>
       <PageHeader
-        eyebrow="Sundown Lawn & Irrigation"
+       
         title="Operations Dashboard"
         subtitle={`${format(parseISO(data.today), 'EEEE, MMMM d, yyyy')} · What was sold, what got done, what needs you.`}
       />
@@ -63,24 +63,24 @@ export default function Dashboard() {
       {/* Stat row */}
       <div className="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-6">
         <Stat label="Jobs today" value={todayJobs.length} sub={`${doneToday} completed`} icon={<Briefcase />} onClick={() => navigate('/schedule')} />
-        <Stat label="Behind on contracts" value={behindContracts.length} sub={behindContracts.length ? `worst: ${behindContracts[0].worstDaysBehind}d overdue` : 'All caught up'} tone={behindContracts.length ? 'danger' : 'success'} icon={<ClipboardCheck />} onClick={() => navigate('/contracts')} />
-        <Stat label="Invoices to approve" value={pendingInvoices.length} sub={money(pendingTotal)} tone={pendingInvoices.length ? 'accent' : 'default'} icon={<Receipt />} onClick={() => navigate('/invoices')} />
-        <Stat label="Open requests" value={openTickets.length} sub={urgentTickets.length ? `${urgentTickets.length} urgent` : 'None urgent'} tone={urgentTickets.length ? 'warning' : 'default'} icon={<Ticket />} onClick={() => navigate('/tickets')} />
+        <Stat label="Behind on contracts" value={behindContracts.length} sub={behindContracts.length ? `worst: ${behindContracts[0].worstDaysBehind}d overdue` : 'All caught up'} tone={behindContracts.length ? 'danger' : 'default'} icon={<ClipboardCheck />} onClick={() => navigate('/contracts')} />
+        <Stat label="Invoices to approve" value={pendingInvoices.length} sub={money(pendingTotal)} icon={<Receipt />} onClick={() => navigate('/invoices')} />
+        <Stat label="Open requests" value={openTickets.length} sub={urgentTickets.length ? `${urgentTickets.length} urgent` : 'None urgent'} icon={<Ticket />} onClick={() => navigate('/tickets')} />
         <Stat label="Unfiled inbox" value={unfiled.length} sub="Unknown sender" icon={<Inbox />} onClick={() => navigate('/inbox')} />
-        <Stat label="Revenue MTD" value={money(revenueThisMonth(data), { cents: false })} sub={`${money(revenueYtd(data), { cents: false })} YTD`} tone="success" icon={<DollarSign />} onClick={() => navigate('/reports')} />
+        <Stat label="Revenue MTD" value={money(revenueThisMonth(data), { cents: false })} sub={`${money(revenueYtd(data), { cents: false })} YTD`} icon={<DollarSign />} onClick={() => navigate('/reports')} />
       </div>
 
-      {/* Weather automation strip */}
-      <Card className="mt-5 border-info/30 bg-info/5">
-        <CardContent className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center">
-          <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-info/15 text-info">
-            <CloudRain className="size-5" />
-          </div>
+      {/* Weather automation strip: the one callout on the page */}
+      <Card className="mt-5">
+        <CardContent className="flex flex-col gap-3 px-4 py-3.5 sm:flex-row sm:items-center">
+          <CloudRain className="size-4 shrink-0 text-muted-foreground" />
           <div className="min-w-0 flex-1">
-            <div className="text-sm font-semibold">Weather check ran 5:00 AM</div>
-            <div className="text-sm text-muted-foreground">0.35 in rain forecast Thu Sep 10 at Hayden / Post Falls. Rule "Rain – skip fert & mowing" suggests holding {holdCandidates.length + heldCandidates.length} fertilizer round{holdCandidates.length + heldCandidates.length === 1 ? '' : 's'} scheduled Wed–Thu.</div>
+            <div className="text-sm">
+              <span className="font-medium">Weather check ran 5:00 AM.</span>{' '}
+              <span className="text-muted-foreground">0.35 in rain forecast Thu Sep 10 at Hayden / Post Falls. Rule "Rain – skip fert & mowing" suggests holding {holdCandidates.length + heldCandidates.length} fertilizer round{holdCandidates.length + heldCandidates.length === 1 ? '' : 's'} scheduled Wed–Thu.</span>
+            </div>
             {(holdCandidates.length > 0 || heldCandidates.length > 0) && (
-              <div className="mt-1 flex flex-wrap gap-1.5">
+              <div className="mt-1.5 flex flex-wrap gap-1.5">
                 {[...holdCandidates, ...heldCandidates].map((j) => (
                   <Badge key={j.id} tone={j.status === 'weather_hold' ? 'warning' : 'outline'}>
                     {property(j.propertyId)?.name} · {fmtDate(j.scheduledDate)}
@@ -100,7 +100,7 @@ export default function Dashboard() {
                 Release hold
               </Button>
             )}
-            {holdCandidates.length === 0 && heldCandidates.length === 0 && <Badge tone="success">Nothing to hold</Badge>}
+            {holdCandidates.length === 0 && heldCandidates.length === 0 && <span className="text-xs text-muted-foreground">Nothing to hold</span>}
           </div>
         </CardContent>
       </Card>
@@ -149,9 +149,9 @@ export default function Dashboard() {
               {behindContracts.length === 0 ? (
                 <EmptyState icon={<ClipboardCheck />} title="Nothing behind" description="Every contracted service is done or inside its window." />
               ) : (
-                <div className="divide-y">
+                <div className="-mx-5 divide-y divide-border/70">
                   {behindContracts.slice(0, 6).map((p) => (
-                    <Link key={p.contract.id} href="/contracts" className="block py-3 first:pt-0 last:pb-0 hover:bg-muted/30">
+                    <Link key={p.contract.id} href="/contracts" className="block px-5 py-3 transition-colors hover:bg-muted/40">
                       <div className="flex items-center justify-between gap-3">
                         <div className="min-w-0">
                           <div className="truncate text-sm font-semibold">{p.client.name}</div>
@@ -177,24 +177,29 @@ export default function Dashboard() {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <AlertTriangle className="size-4 text-accent" /> Needs you
+                <AlertTriangle className="size-4 text-muted-foreground" /> Needs you
               </CardTitle>
               <CardDescription>Human-in-the-loop items, most urgent first</CardDescription>
             </CardHeader>
-            <CardContent className="space-y-1.5">
-              {urgentTickets.map((tk) => (
-                <QueueRow key={tk.id} href="/tickets" tone="danger" label={`Urgent: #${tk.number} ${tk.title}`} sub={client(tk.clientId)?.name ?? 'Unassigned'} />
-              ))}
-              {overdueInvoices.map((i) => (
-                <QueueRow key={i.id} href="/invoices" tone="danger" label={`Overdue: Invoice #${i.number} · ${money(invoiceTotal(i))}`} sub={`${client(i.clientId)?.name} · ${daysBetween(i.dueDate, data.today)}d past due · ${i.remindersSent} reminder${i.remindersSent === 1 ? '' : 's'} sent`} />
-              ))}
-              {pendingInvoices.map((i) => (
-                <QueueRow key={i.id} href="/invoices" tone="accent" label={`Approve invoice #${i.number} · ${money(invoiceTotal(i))}`} sub={`${client(i.clientId)?.name} · ${i.sourceLabel.replace('Auto: ', '')}`} />
-              ))}
-              {unfiled.map((m) => (
-                <QueueRow key={m.id} href="/inbox" tone="info" label={`File ${m.channel} from ${m.from}`} sub={m.body.slice(0, 70) + (m.body.length > 70 ? '…' : '')} />
-              ))}
-              {urgentTickets.length + overdueInvoices.length + pendingInvoices.length + unfiled.length === 0 && <EmptyState title="Queue is clear" description="Nothing waiting on a decision from you." />}
+            <CardContent>
+              {urgentTickets.length + overdueInvoices.length + pendingInvoices.length + unfiled.length === 0 ? (
+                <EmptyState title="Queue is clear" description="Nothing waiting on a decision from you." />
+              ) : (
+                <div className="-mx-5 divide-y divide-border/70">
+                  {urgentTickets.map((tk) => (
+                    <QueueRow key={tk.id} href="/tickets" tone="danger" label={`Urgent: #${tk.number} ${tk.title}`} sub={client(tk.clientId)?.name ?? 'Unassigned'} />
+                  ))}
+                  {overdueInvoices.map((i) => (
+                    <QueueRow key={i.id} href="/invoices" tone="danger" label={`Overdue: Invoice #${i.number} · ${money(invoiceTotal(i))}`} sub={`${client(i.clientId)?.name} · ${daysBetween(i.dueDate, data.today)}d past due · ${i.remindersSent} reminder${i.remindersSent === 1 ? '' : 's'} sent`} />
+                  ))}
+                  {pendingInvoices.map((i) => (
+                    <QueueRow key={i.id} href="/invoices" tone="accent" label={`Approve invoice #${i.number} · ${money(invoiceTotal(i))}`} sub={`${client(i.clientId)?.name} · ${i.sourceLabel.replace('Auto: ', '')}`} />
+                  ))}
+                  {unfiled.map((m) => (
+                    <QueueRow key={m.id} href="/inbox" tone="info" label={`File ${m.channel} from ${m.from}`} sub={m.body.slice(0, 70) + (m.body.length > 70 ? '…' : '')} />
+                  ))}
+                </div>
+              )}
             </CardContent>
           </Card>
 
@@ -208,19 +213,19 @@ export default function Dashboard() {
                 const jobs = todayJobs.filter((j) => j.crewId === c.id).sort((a, b) => (a.routeOrder ?? 99) - (b.routeOrder ?? 99));
                 return (
                   <div key={c.id}>
-                    <div className="mb-1.5 flex items-center justify-between">
+                    <div className="flex items-center justify-between pb-1">
                       <CrewChip crewId={c.id} />
-                      <span className="text-xs text-muted-foreground">
+                      <span className="num text-xs text-muted-foreground">
                         {jobs.filter((j) => j.status === 'done').length}/{jobs.length} done
                       </span>
                     </div>
                     {jobs.length === 0 ? (
-                      <div className="rounded-md border border-dashed px-3 py-2 text-xs text-muted-foreground">No jobs scheduled.</div>
+                      <div className="py-2 text-xs text-muted-foreground">No jobs scheduled.</div>
                     ) : (
-                      <ol className="space-y-1">
+                      <ol className="divide-y divide-border/70">
                         {jobs.map((j) => (
-                          <li key={j.id} className={cn('flex items-center gap-2 rounded-md border px-2.5 py-1.5 text-sm', j.status === 'in_progress' && 'border-accent/50 bg-accent/5')}>
-                            <span className="flex size-5 shrink-0 items-center justify-center rounded-full bg-muted text-[11px] font-bold tabular">{j.routeOrder ?? '·'}</span>
+                          <li key={j.id} className="flex items-center gap-2.5 py-2 text-sm">
+                            <span className={cn('num w-4 shrink-0 text-center text-xs', j.status === 'in_progress' ? 'font-semibold text-foreground' : 'text-muted-foreground')}>{j.routeOrder ?? '·'}</span>
                             <div className="min-w-0 flex-1">
                               <div className="truncate font-medium">{property(j.propertyId)?.name}</div>
                               <div className="truncate text-xs text-muted-foreground">{j.title}</div>
@@ -246,15 +251,15 @@ export default function Dashboard() {
 }
 
 function QueueRow({ href, tone, label, sub }: { href: string; tone: 'danger' | 'accent' | 'info'; label: string; sub?: string }) {
-  const bar = { danger: 'bg-destructive', accent: 'bg-accent', info: 'bg-info' }[tone];
+  const dot = { danger: 'bg-destructive', accent: 'bg-accent', info: 'bg-muted-foreground/50' }[tone];
   return (
-    <Link href={href} className="flex items-stretch gap-2.5 rounded-md border bg-card px-2.5 py-2 transition-colors hover:border-primary/40 hover:bg-primary/5">
-      <span className={cn('w-1 shrink-0 rounded-full', bar)} />
+    <Link href={href} className="flex items-center gap-2.5 px-5 py-2.5 transition-colors hover:bg-muted/40">
+      <span className={cn('size-1.5 shrink-0 rounded-full', dot)} />
       <div className="min-w-0 flex-1">
         <div className="truncate text-sm font-medium">{label}</div>
         {sub && <div className="truncate text-xs text-muted-foreground">{sub}</div>}
       </div>
-      <ArrowRight className="size-4 self-center text-muted-foreground" />
+      <ArrowRight className="size-3.5 shrink-0 text-muted-foreground/60" />
     </Link>
   );
 }

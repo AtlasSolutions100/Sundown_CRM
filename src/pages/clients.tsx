@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { Link } from 'wouter';
-import { Users, Plus, Building2, Home, Briefcase, Wallet } from 'lucide-react';
+import { Users, Plus, Building2, Briefcase, Wallet } from 'lucide-react';
 import { useStore } from '@/data/store';
 import { Button, Card, CardContent, Badge, Input, Select, Textarea, Field, Dialog, Segmented, Progress, Table, THead, TBody, TR, TH, TD, Stat, PageHeader, EmptyState, useToast, type Tone } from '@/components/ui';
 import { contractProgress, clientBalance, marginByClient } from '@/lib/metrics';
@@ -9,6 +9,7 @@ import type { Client, ClientStatus, ClientType } from '@/data/types';
 
 const TYPE_LABEL: Record<ClientType, string> = { hoa: 'HOA', residential: 'Residential', commercial: 'Commercial' };
 const STATUS_TONE: Record<ClientStatus, Tone> = { lead: 'accent', active: 'success', former: 'neutral' };
+const STATUS_LABEL: Record<ClientStatus, string> = { lead: 'Lead', active: 'Active', former: 'Former' };
 
 export default function Clients() {
   const { data, update } = useStore();
@@ -40,11 +41,11 @@ export default function Clients() {
 
   return (
     <div>
-      <PageHeader eyebrow="Clients" title="Clients & leads" subtitle="Every property, contract, conversation and dollar in one place." actions={<Button onClick={() => setOpen(true)}><Plus /> New client</Button>} />
+      <PageHeader title="Clients & leads" subtitle="Every property, contract, conversation and dollar in one place." actions={<Button onClick={() => setOpen(true)}><Plus /> New client</Button>} />
 
       <div className="mb-6 grid grid-cols-2 gap-3 md:grid-cols-4">
         <Stat label="Active clients" value={active.length} icon={<Users />} onClick={() => setStatus('active')} />
-        <Stat label="Leads" value={data.clients.filter((c) => c.status === 'lead').length} tone="accent" icon={<Briefcase />} onClick={() => setStatus('lead')} />
+        <Stat label="Leads" value={data.clients.filter((c) => c.status === 'lead').length} icon={<Briefcase />} onClick={() => setStatus('lead')} />
         <Stat label="HOAs" value={data.clients.filter((c) => c.type === 'hoa' && c.status === 'active').length} icon={<Building2 />} onClick={() => setType('hoa')} />
         <Stat label="Outstanding balance" value={money(outstanding)} tone={outstanding > 0 ? 'warning' : 'default'} icon={<Wallet />} />
       </div>
@@ -83,16 +84,11 @@ export default function Clients() {
                 {rows.map(({ c, done, total, behind, balance, margin, props }) => (
                   <TR key={c.id}>
                     <TD>
-                      <Link href={`/clients/${c.id}`} className="font-semibold hover:text-primary hover:underline">{c.name}</Link>
+                      <Link href={`/clients/${c.id}`} className="font-medium hover:underline">{c.name}</Link>
                       <div className="text-xs text-muted-foreground">{c.address}</div>
                     </TD>
-                    <TD>
-                      <span className="inline-flex items-center gap-1.5 text-sm">
-                        {c.type === 'hoa' ? <Building2 className="size-3.5 text-muted-foreground" /> : c.type === 'residential' ? <Home className="size-3.5 text-muted-foreground" /> : <Briefcase className="size-3.5 text-muted-foreground" />}
-                        {TYPE_LABEL[c.type]}
-                      </span>
-                    </TD>
-                    <TD><Badge tone={STATUS_TONE[c.status]} dot>{c.status}</Badge></TD>
+                    <TD className="text-muted-foreground">{TYPE_LABEL[c.type]}</TD>
+                    <TD><Badge tone={STATUS_TONE[c.status]} dot>{STATUS_LABEL[c.status]}</Badge></TD>
                     <TD>
                       <div className="text-sm">{c.contactName}</div>
                       <div className="text-xs text-muted-foreground">{c.phone}</div>
@@ -112,8 +108,8 @@ export default function Clients() {
                         <span className="text-xs text-muted-foreground">No contract</span>
                       )}
                     </TD>
-                    <TD className={cn('text-right tabular font-medium', balance > 0 && 'text-destructive')}>{money(balance)}</TD>
-                    <TD className="text-right tabular">
+                    <TD className={cn('text-right num font-medium', balance > 0 && 'text-destructive')}>{money(balance)}</TD>
+                    <TD className="text-right num">
                       {margin ? <span className={cn('font-medium', margin.margin < 0.15 ? 'text-destructive' : margin.margin < 0.3 ? 'text-[hsl(30_70%_30%)]' : 'text-success')}>{pct(margin.margin)}</span> : <span className="text-muted-foreground">—</span>}
                     </TD>
                     <TD>
@@ -201,8 +197,8 @@ function NewClientDialog({ onClose, onSave }: { onClose: () => void; onSave: (c:
         <Field label="Billing / mailing address"><Input value={f.address} onChange={(e) => set('address', e.target.value)} /></Field>
         <Field label="Notes" className="sm:col-span-2"><Textarea value={f.notes} onChange={(e) => set('notes', e.target.value)} className="min-h-[56px]" /></Field>
       </div>
-      <div className="mt-5 rounded-lg border bg-muted/30 p-4">
-        <div className="mb-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">First property</div>
+      <div className="mt-5 rounded-lg bg-muted/50 p-3">
+        <div className="mb-3 text-xs font-medium text-muted-foreground">First property</div>
         <div className="grid gap-3 sm:grid-cols-3">
           <Field label="Property name"><Input value={f.propName} onChange={(e) => set('propName', e.target.value)} placeholder="Common areas" /></Field>
           <Field label="Street address"><Input value={f.propAddress} onChange={(e) => set('propAddress', e.target.value)} /></Field>

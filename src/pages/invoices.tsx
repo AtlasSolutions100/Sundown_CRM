@@ -42,9 +42,9 @@ export default function Invoices() {
   return (
     <div>
       <PageHeader
-        eyebrow="Money"
+       
         title="Invoices"
-        subtitle="Auto-generated from completed work. Nothing goes out until you approve it, until you tell it to."
+        subtitle="Auto-drafted from completed work. Nothing goes out until you approve it."
         actions={
           <Button
             variant="accent"
@@ -59,19 +59,17 @@ export default function Invoices() {
       />
 
       {/* Trust banner */}
-      <Card className="mb-6 border-primary/30 bg-primary/5">
-        <CardContent className="flex flex-col gap-4 p-5 md:flex-row md:items-center">
-          <div className="flex size-11 shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-            <ShieldCheck className="size-6" />
-          </div>
+      <Card className="mb-5">
+        <CardContent className="flex flex-col gap-4 px-5 py-4 md:flex-row md:items-center">
+          <ShieldCheck className="size-4 shrink-0 text-muted-foreground" />
           <div className="min-w-0 flex-1">
-            <div className="font-semibold">
+            <div className="text-sm font-medium">
               Automation trust: {data.settings.invoiceApprovalsCount} of {data.settings.invoiceApprovalsToTrust} auto-invoices approved without edits
             </div>
-            <p className="text-sm text-muted-foreground">You stay in the loop while the system earns it. Once you have clicked "looks good" enough times, flip the switch and it sends on its own.</p>
-            <Progress value={trustPct} className="mt-2" tone={trustPct >= 1 ? 'success' : 'primary'} />
+            <p className="text-[13px] text-muted-foreground">You stay in the loop while the system earns it. Once you have clicked "looks good" enough times, flip the switch and it sends on its own.</p>
+            <Progress value={trustPct} className="mt-2 max-w-md" tone={trustPct >= 1 ? 'success' : 'primary'} />
           </div>
-          <div className="shrink-0 rounded-md border bg-card px-3 py-2">
+          <div className="shrink-0">
             <Switch
               checked={data.settings.invoiceAutoSend}
               onChange={(v) => {
@@ -84,11 +82,11 @@ export default function Invoices() {
         </CardContent>
       </Card>
 
-      <div className="mb-6 grid grid-cols-2 gap-3 lg:grid-cols-5">
+      <div className="mb-5 grid grid-cols-2 gap-3 lg:grid-cols-5">
         <Stat label="Needs approval" value={pending.length} sub={money(sum(pending.map(invoiceTotal)))} tone={pending.length ? 'accent' : 'default'} icon={<Receipt />} onClick={() => setTab('pending')} />
         <Stat label="Outstanding" value={money(sum([...sent, ...overdue].map(remaining)))} sub={`${sent.length + overdue.length} invoices sent`} onClick={() => setTab('sent')} />
         <Stat label="Overdue" value={overdue.length} sub={money(sum(overdue.map(remaining)))} tone={overdue.length ? 'danger' : 'default'} onClick={() => setTab('overdue')} />
-        <Stat label="Collected MTD" value={money(revenueThisMonth(data), { cents: false })} sub="September" tone="success" />
+        <Stat label="Collected MTD" value={money(revenueThisMonth(data), { cents: false })} sub="September" />
         <Stat label="Collected YTD" value={money(revenueYtd(data), { cents: false })} sub="2026 season" />
       </div>
 
@@ -148,7 +146,7 @@ export default function Invoices() {
                   <TD>
                     <div className="flex justify-end gap-1">
                       {inv.status === 'pending_approval' && (
-                        <Button size="xs" variant="accent" onClick={() => setReviewId(inv.id)}>
+                        <Button size="xs" variant="outline" onClick={() => setReviewId(inv.id)}>
                           <Eye /> Review
                         </Button>
                       )}
@@ -224,8 +222,8 @@ export default function Invoices() {
         <Dialog open onClose={() => setViewId(null)} title={`Invoice #${viewInv.number}`} description={viewInv.sourceLabel} size="lg" footer={<Button variant="outline" onClick={() => setViewId(null)}>Close</Button>}>
           <InvoicePreview inv={viewInv} />
           {data.payments.filter((p) => p.invoiceId === viewInv.id).length > 0 && (
-            <div className="mt-4 rounded-md border bg-muted/40 p-3 text-sm">
-              <div className="mb-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground">Payments</div>
+            <div className="mt-4 rounded-lg bg-muted/50 p-3 text-sm">
+              <div className="mb-1 text-xs font-medium text-muted-foreground">Payments</div>
               {data.payments
                 .filter((p) => p.invoiceId === viewInv.id)
                 .map((p) => (
@@ -280,9 +278,9 @@ function ReviewDialog({ inv, onClose, onEditLine, onApprove, onVoid }: { inv: In
         <InvoicePreview inv={inv} />
       ) : (
         <>
-          <div className="mb-3 rounded-md border border-accent/40 bg-accent/10 p-3 text-sm">
-            Does this look right? Edit any quantity or price inline. Approving sends it to <span className="font-medium">{c?.billingEmail ?? c?.email}</span> and counts toward automation trust.
-          </div>
+          <p className="mb-3 text-[13px] text-muted-foreground">
+            Does this look right? Edit any quantity or price inline. Approving sends it to <span className="font-medium text-foreground">{c?.billingEmail ?? c?.email}</span> and counts toward automation trust.
+          </p>
           <Table>
             <THead>
               <TR>
@@ -311,7 +309,7 @@ function ReviewDialog({ inv, onClose, onEditLine, onApprove, onVoid }: { inv: In
           </Table>
           <div className="mt-3 flex items-center justify-between border-t pt-3">
             <span className="text-sm text-muted-foreground">Due {fmtDateLong(inv.dueDate)} · Net 15</span>
-            <span className="text-lg font-bold tabular">{money(invoiceTotal(inv))}</span>
+            <span className="num text-lg font-semibold">{money(invoiceTotal(inv))}</span>
           </div>
         </>
       )}
@@ -394,7 +392,7 @@ function InvoicePreview({ inv }: { inv: Invoice }) {
       </div>
       <div className="grid gap-4 py-4 sm:grid-cols-2">
         <div>
-          <div className="text-[10px] font-semibold uppercase tracking-wider text-neutral-500">Bill to</div>
+          <div className="text-[11.5px] font-medium text-neutral-500">Bill to</div>
           <div className="font-medium">{c?.name}</div>
           <div className="text-neutral-600">
             {c?.contactName}
@@ -406,7 +404,7 @@ function InvoicePreview({ inv }: { inv: Invoice }) {
         </div>
         {p && (
           <div>
-            <div className="text-[10px] font-semibold uppercase tracking-wider text-neutral-500">Service location</div>
+            <div className="text-[11.5px] font-medium text-neutral-500">Service location</div>
             <div className="font-medium">{p.name}</div>
             <div className="text-neutral-600">
               {p.address}, {p.city}
@@ -416,7 +414,7 @@ function InvoicePreview({ inv }: { inv: Invoice }) {
       </div>
       <table className="w-full">
         <thead>
-          <tr className="border-b text-left text-[10px] uppercase tracking-wider text-neutral-500">
+          <tr className="border-b text-left text-[10px] text-neutral-500">
             <th className="py-1">Description</th>
             <th className="py-1 text-right">Qty</th>
             <th className="py-1 text-right">Rate</th>
